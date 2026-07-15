@@ -657,7 +657,7 @@
             let piattoSeq = 0;
             let piatti = [];
             let isSaving = false;
-            let cachedOrders = null; // Cache per evitare chiamate multiple
+            let cachedOrders = null;
 
             // ------------------------------------------------------------
             // 3. ELEMENTI DOM
@@ -782,10 +782,9 @@
             }
 
             // ------------------------------------------------------------
-            // 6. FUNZIONI PER SHEET.BEST (OTTIMIZZATE)
+            // 6. FUNZIONI PER SHEET.BEST (OTTIMIZZATE CON CACHE)
             // ------------------------------------------------------------
             
-            // Legge tutti gli ordini una volta sola e li mette in cache
             async function fetchAllOrders(forceRefresh = false) {
                 if (cachedOrders && !forceRefresh) {
                     return cachedOrders;
@@ -800,7 +799,6 @@
                 }
             }
 
-            // Invalida la cache (da chiamare dopo un POST o DELETE)
             function invalidateCache() {
                 cachedOrders = null;
             }
@@ -828,7 +826,6 @@
                         return;
                     }
 
-                    // Carica i dati dell'ordine nel form
                     let piattiData = [];
                     try {
                         piattiData = order.piatti ? JSON.parse(order.piatti) : [];
@@ -867,7 +864,7 @@
             }
 
             // ------------------------------------------------------------
-            // 8. INVIO ORDINE A SHEET.BEST (FUNZIONANTE)
+            // 8. INVIO ORDINE A SHEET.BEST (CON LOG DETTAGLIATO)
             // ------------------------------------------------------------
             async function inviaOrdine() {
                 if (isSaving) return;
@@ -876,7 +873,6 @@
                 const classicoCheck = parseInt(document.getElementById('cc-qty-pclassico').textContent, 10) || 0;
                 const carneCheck = parseInt(document.getElementById('cc-qty-pcarne').textContent, 10) || 0;
 
-                // Validazione
                 if (!famiglia) {
                     statusEl.style.color = 'var(--red-stamp)';
                     statusEl.textContent = '⚠️ Seleziona la famiglia prima di inviare.';
@@ -885,11 +881,10 @@
                 }
                 if (classicoCheck + carneCheck < 1) {
                     statusEl.style.color = 'var(--red-stamp)';
-                    statusEl.textContent = '⚠️ Indica almeno un panzerotto (classico o carne).';
+                    statusEl.textContent = '⚠️ Indica almeno un panzerotto.';
                     return;
                 }
 
-                // Prepara i dati
                 const order = {
                     famiglia: famiglia,
                     piatti: JSON.stringify(piatti.map(function(p) {
@@ -906,37 +901,47 @@
                 statusEl.style.color = 'var(--ink-soft)';
 
                 try {
-                    // 1. Leggi tutti gli ordini (usa la cache se disponibile)
-                    const orders = await fetchAllOrders();
-                    
-                    // 2. Cerca se esiste già un ordine per questa famiglia
-                    const existingOrder = orders.find(o => o.famiglia === famiglia);
+                    console.log('📡 1. Leggo tutti gli ordini...');
+                    const orders = await fetchAllOrders(true);
+                    console.log('📋 Ordini trovati:', orders);
 
-                    // 3. Se esiste, cancellalo usando il suo ID
+                    const existingOrder = orders.find(o => o.famiglia === famiglia);
+                    console.log('🔍 Ordine esistente per', famiglia, ':', existingOrder);
+
                     if (existingOrder && existingOrder.id) {
+                        console.log('🗑️ Cancello l\'ordine con ID:', existingOrder.id);
                         await axios.delete(SHEET_BEST_URL + '/' + existingOrder.id);
+                        console.log('✅ Ordine cancellato');
+                    } else {
+                        console.log('ℹ️ Nessun ordine esistente da cancellare');
                     }
 
-                    // 4. Inserisci il nuovo ordine
-                    await axios.post(SHEET_BEST_URL, order);
+                    console.log('📝 Creo il nuovo ordine...');
+                    const postResponse = await axios.post(SHEET_BEST_URL, order);
+                    console.log('✅ Nuovo ordine creato:', postResponse.data);
 
-                    // 5. Invalida la cache perché i dati sono cambiati
                     invalidateCache();
 
                     statusEl.style.color = 'var(--sea-dark)';
                     statusEl.textContent = '✅ Comanda registrata per ' + famiglia + '.';
 
-                    // Se il riepilogo è aperto, lo aggiorna (forzando il refresh)
                     if (recapContainer.classList.contains('open')) {
                         await renderRecap(true);
                     }
                 } catch (e) {
-                    console.error('Errore nel salvataggio:', e);
+                    console.error('❌ ERRORE COMPLETO:', e);
                     let msg = '❌ Non sono riuscito a salvare. Riprova.';
-                    if (e.response && e.response.data) {
+                    if (e.response) {
+                        console.error('📄 Dati risposta:', e.response.data);
+                        console.error('📄 Status:', e.response.status);
+                        console.error('📄 Headers:', e.response.headers);
                         msg += ' Dettaglio: ' + JSON.stringify(e.response.data);
                     } else if (e.request) {
+                        console.error('📄 Nessuna risposta:', e.request);
                         msg += ' Nessuna risposta dal server.';
+                    } else {
+                        console.error('📄 Errore:', e.message);
+                        msg += ' ' + e.message;
                     }
                     statusEl.style.color = 'var(--red-stamp)';
                     statusEl.textContent = msg;
@@ -969,7 +974,6 @@
                         return;
                     }
 
-                    // Ordina per famiglia
                     orders.sort(function(a, b) {
                         return (a.famiglia || '').localeCompare(b.famiglia || '');
                     });
@@ -1044,13 +1048,11 @@
             // 10. EVENT LISTENERS
             // ------------------------------------------------------------
 
-            // Cambio famiglia → carica l'ordine esistente
             famigliaSelect.addEventListener('change', function(e) {
                 loadExisting(e.target.value);
                 updateSubmitState();
             });
 
-            // Aggiungi piatto crudo
             document.getElementById('cc-add-piatto').addEventListener('click', function() {
                 piatti.push(nuovoPiatto());
                 renderPiatti();
@@ -1058,7 +1060,6 @@
                 updateSubmitState();
             });
 
-            // Stepper per i panzerotti
             document.querySelectorAll('.cc-stepper button').forEach(function(btn) {
                 btn.addEventListener('click', function() {
                     const targetId = btn.getAttribute('data-target');
@@ -1072,10 +1073,8 @@
                 });
             });
 
-            // Pulsante invio
             submitBtn.addEventListener('click', inviaOrdine);
 
-            // Toggle riepilogo
             toggleBtn.addEventListener('click', function() {
                 const isOpen = recapContainer.classList.toggle('open');
                 this.textContent = isOpen ? 'Nascondi riepilogo' : 'Mostra riepilogo di tutte le famiglie';
@@ -1094,8 +1093,6 @@
             }
 
             console.log('✅ App pronta! URL Sheet.best:', SHEET_BEST_URL);
-            console.log('📊 Piano gratuito: usa DELETE con ID');
-            console.log('💾 Cache attiva per ridurre chiamate API');
         })();
     </script>
 </body>
