@@ -1,0 +1,863 @@
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Permanent+Marker&family=Libre+Franklin:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+.cc-root {
+  --paper: #EFE6D6;
+  --paper-dark: #E1D3B4;
+  --ink: #21302C;
+  --ink-soft: #4B564F;
+  --sea: #2C6E8E;
+  --sea-dark: #1F5069;
+  --sea-bg: #DCE9EE;
+  --forno: #B8791E;
+  --forno-dark: #8C5C15;
+  --forno-bg: #F1E2C9;
+  --line: #B99552;
+  --white: #FBF8F0;
+  --red-stamp: #A83B2E;
+  --pitch: #1E5631;
+  --pitch-dark: #143D22;
+  --pitch-light: #266B3C;
+  --gold: #D3A73B;
+  --gold-dark: #9A741F;
+  font-family: 'Libre Franklin', sans-serif;
+  color: var(--ink);
+  max-width: 640px;
+  margin: 0 auto;
+}
+.cc-card {
+  border: 1.5px solid var(--gold-dark);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.cc-hero {
+  position: relative;
+  background-color: var(--pitch);
+  background-image: repeating-linear-gradient(
+    115deg,
+    var(--pitch) 0px, var(--pitch) 26px,
+    var(--pitch-light) 26px, var(--pitch-light) 52px
+  );
+  color: var(--white);
+  text-align: center;
+  padding: 26px 20px 30px;
+  overflow: hidden;
+}
+.cc-hero-circle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 260px;
+  height: 260px;
+  border: 1.5px solid rgba(251,248,240,0.22);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.cc-hero-eyebrow {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.cc-hero-title {
+  position: relative;
+  font-family: 'Anton', sans-serif;
+  font-weight: 400;
+  font-size: 38px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--white);
+  margin: 0;
+  line-height: 1.02;
+  text-shadow: 0 2px 0 var(--pitch-dark);
+}
+.cc-hero-sub {
+  position: relative;
+  font-family: 'Permanent Marker', cursive;
+  font-size: 24px;
+  color: var(--gold);
+  margin: 2px 0 10px;
+}
+.cc-hero-meta {
+  position: relative;
+  font-size: 12px;
+  color: rgba(251,248,240,0.8);
+  letter-spacing: 0.03em;
+}
+.cc-ticket {
+  background: var(--paper);
+  padding: 1.75rem 1.75rem 1.75rem;
+  position: relative;
+  box-sizing: border-box;
+}
+.cc-ticket::before {
+  content: "";
+  position: absolute;
+  left: 0; right: 0;
+  top: -1px;
+  height: 10px;
+  background-image: radial-gradient(circle at 10px 0, transparent 9px, var(--paper) 10px);
+  background-size: 20px 10px;
+  background-repeat: repeat-x;
+  transform: rotate(180deg);
+}
+.cc-sub {
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin: 0 0 1.1rem;
+}
+.cc-dashed {
+  border: none;
+  border-top: 2px dashed var(--line);
+  margin: 1.25rem 0;
+}
+.cc-field-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+  display: block;
+  margin-bottom: 6px;
+}
+.cc-select {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: 'Libre Franklin', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--white);
+  color: var(--ink);
+}
+
+.cc-overview {
+  display: flex;
+  gap: 8px;
+  margin: 0.9rem 0 0;
+  flex-wrap: wrap;
+}
+.cc-overview-item {
+  flex: 1;
+  min-width: 108px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 8px 10px;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.cc-overview-item.has-value {
+  border-color: var(--sea);
+  background: var(--sea-bg);
+}
+.cc-overview-item.forno-active {
+  border-color: var(--forno);
+  background: var(--forno-bg);
+}
+.cc-overview-icon {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+}
+.cc-overview-num {
+  font-family: 'Space Mono', monospace;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1;
+}
+.cc-overview-label {
+  font-size: 10.5px;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+}
+.cc-overview-total {
+  width: 100%;
+  text-align: center;
+  font-size: 12px;
+  color: var(--ink-soft);
+  margin-top: 8px;
+  font-family: 'Space Mono', monospace;
+}
+.cc-overview-total b { color: var(--ink); }
+
+.cc-section-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 0 0 4px;
+}
+.cc-section-title {
+  font-family: 'Permanent Marker', cursive;
+  font-weight: 400;
+  font-size: 20px;
+}
+.cc-section-title.sea { color: var(--sea-dark); }
+.cc-section-title.forno { color: var(--forno-dark); }
+.cc-price-tag {
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  padding: 2px 8px;
+  border-radius: 3px;
+}
+.cc-price-tag.sea { background: var(--sea-bg); color: var(--sea-dark); }
+.cc-price-tag.forno { background: var(--forno-bg); color: var(--forno-dark); }
+.cc-section-note {
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin: 0 0 12px;
+}
+.cc-avail-note {
+  font-size: 12px;
+  color: var(--sea-dark);
+  background: var(--sea-bg);
+  border-radius: 4px;
+  padding: 8px 10px;
+  margin: 0 0 14px;
+}
+.cc-piatto-card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+.cc-piatto-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.cc-piatto-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--sea-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.cc-piatto-remove {
+  border: none;
+  background: transparent;
+  color: var(--red-stamp);
+  font-size: 12px;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+.cc-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.cc-chip {
+  position: relative;
+}
+.cc-chip input {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  cursor: pointer;
+}
+.cc-chip label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px 8px 10px;
+  border: 1.5px dashed var(--line);
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--ink-soft);
+  background: var(--paper-dark);
+  cursor: pointer;
+  user-select: none;
+  opacity: 0.75;
+  transition: all 0.12s ease;
+}
+.cc-chip-mark {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1.5px solid var(--ink-soft);
+  background: transparent;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  line-height: 1;
+  color: transparent;
+}
+.cc-chip input:checked + label {
+  background: var(--sea);
+  color: var(--white);
+  font-weight: 700;
+  border: 1.5px solid var(--sea-dark);
+  opacity: 1;
+  box-shadow: 0 0 0 1px var(--sea-dark);
+}
+.cc-chip input:checked + label .cc-chip-mark {
+  border-color: var(--white);
+  background: var(--white);
+  color: var(--sea-dark);
+}
+.cc-chip input:checked + label .cc-chip-mark::after {
+  content: '\2713';
+}
+.cc-chip input:not(:checked) + label:hover {
+  opacity: 1;
+  border-color: var(--ink-soft);
+}
+.cc-add-piatto {
+  width: 100%;
+  padding: 10px;
+  border: 1.5px dashed var(--sea);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--sea-dark);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 4px;
+}
+.cc-piatti-empty {
+  font-size: 13px;
+  color: var(--ink-soft);
+  font-style: italic;
+  padding: 6px 0 12px;
+}
+.cc-qty-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+.cc-qty-name { font-size: 15px; font-weight: 500; }
+.cc-qty-sub { font-size: 12px; color: var(--ink-soft); }
+.cc-stepper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.cc-stepper button {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1.5px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  line-height: 1;
+}
+.cc-stepper button:active { transform: scale(0.94); }
+.cc-stepper .cc-qty-val {
+  font-family: 'Space Mono', monospace;
+  font-size: 17px;
+  min-width: 22px;
+  text-align: center;
+}
+.cc-submit {
+  width: 100%;
+  margin-top: 1.5rem;
+  padding: 13px;
+  border: 2px solid var(--gold-dark);
+  border-radius: 4px;
+  background: var(--pitch);
+  color: var(--gold);
+  font-family: 'Anton', sans-serif;
+  font-size: 19px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.cc-submit:active { transform: scale(0.99); }
+.cc-submit:disabled { opacity: 0.4; cursor: not-allowed; }
+.cc-submit:disabled:active { transform: none; }
+.cc-required-note {
+  font-size: 11.5px;
+  color: var(--ink-soft);
+  text-align: center;
+  margin-top: 1.4rem;
+}
+.cc-recap-item-off {
+  text-decoration: line-through;
+  opacity: 0.5;
+}
+.cc-status {
+  text-align: center;
+  font-size: 13px;
+  margin-top: 10px;
+  min-height: 16px;
+  color: var(--sea-dark);
+}
+.cc-toggle {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid var(--ink);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--ink);
+  font-size: 13px;
+  cursor: pointer;
+}
+.cc-recap {
+  margin-top: 1.25rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 12.5px;
+  display: none;
+}
+.cc-recap.open { display: block; }
+.cc-recap table { width: 100%; border-collapse: collapse; }
+.cc-recap th, .cc-recap td {
+  text-align: left;
+  padding: 5px 4px;
+  border-bottom: 1px dotted var(--line);
+  vertical-align: top;
+}
+.cc-recap th { color: var(--ink-soft); font-weight: 700; font-size: 11px; text-transform: uppercase; }
+.cc-recap td.num, .cc-recap th.num { text-align: right; }
+.cc-recap tfoot td { border-top: 2px dashed var(--line); border-bottom: none; font-weight: 700; padding-top: 8px; }
+.cc-empty { color: var(--ink-soft); font-style: italic; padding: 8px 0; }
+.cc-recap-note { font-family: 'Libre Franklin', sans-serif; font-size: 11.5px; color: var(--ink-soft); margin-top: 8px; }
+.cc-piatto-list-item { margin: 0 0 4px; }
+</style>
+
+<div class="cc-root">
+  <div class="cc-card">
+    <div class="cc-hero">
+      <div class="cc-hero-circle"></div>
+      <div class="cc-hero-eyebrow">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2 4 8l3 10h10l3-10z" stroke="#D3A73B" stroke-width="1.5" stroke-linejoin="round"/><path d="M12 2v6M4 8l5 4M20 8l-5 4M7 18l5-4 5 4" stroke="#D3A73B" stroke-width="1.2" stroke-linejoin="round"/></svg>
+        Coppa del sabato in pescheria
+      </div>
+      <h1 class="cc-hero-title">Finale mondiale</h1>
+      <div class="cc-hero-sub">Villa Matteo</div>
+      <div class="cc-hero-meta">Crudo di mare &bull; panzerotti fritti &bull; tempi supplementari a tavola</div>
+    </div>
+
+    <div class="cc-ticket">
+      <p class="cc-sub">Compila un modulo per famiglia. Puoi correggere e reinviare: l'ultimo invio sostituisce quello precedente.</p>
+
+      <label class="cc-field-label" for="cc-famiglia">Famiglia</label>
+      <select class="cc-select" id="cc-famiglia">
+        <option value="">Seleziona la famiglia...</option>
+        <option value="Cucumazzo">Cucumazzo</option>
+        <option value="Spadaro">Spadaro</option>
+        <option value="Addante">Addante</option>
+        <option value="Amenduni">Amenduni</option>
+        <option value="Didone">Didone</option>
+        <option value="Damiani">Damiani</option>
+        <option value="Magaletti">Magaletti</option>
+        <option value="Grimaldi">Grimaldi</option>
+        <option value="Lollino">Lollino</option>
+        <option value="Ranieri">Ranieri</option>
+      </select>
+
+      <div class="cc-overview" id="cc-overview">
+        <div class="cc-overview-item" id="cc-ov-crudo-item">
+          <svg class="cc-overview-icon" viewBox="0 0 24 24" fill="none" id="cc-icon-crudo">
+            <path d="M12 3C7 3 4 9 4 14c0 4 3.6 7 8 7s8-3 8-7c0-5-3-11-8-11z" stroke="#2C6E8E" stroke-width="1.6" stroke-linejoin="round"/>
+            <path d="M12 3v18M8 8c1 1 1 3 0 5M16 8c-1 1-1 3 0 5" stroke="#2C6E8E" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+          <div>
+            <div class="cc-overview-num" id="cc-ov-crudo">0</div>
+            <div class="cc-overview-label">crudo</div>
+          </div>
+        </div>
+        <div class="cc-overview-item" id="cc-ov-classico-item">
+          <svg class="cc-overview-icon" viewBox="0 0 24 24" fill="none" id="cc-icon-classico">
+            <path d="M4 12a8 8 0 0 1 16 0z" stroke="#B8791E" stroke-width="1.6" stroke-linejoin="round"/>
+            <path d="M4 12h16" stroke="#B8791E" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+          <div>
+            <div class="cc-overview-num" id="cc-ov-classico">0</div>
+            <div class="cc-overview-label">panz. classico</div>
+          </div>
+        </div>
+        <div class="cc-overview-item" id="cc-ov-carne-item">
+          <svg class="cc-overview-icon" viewBox="0 0 24 24" fill="none" id="cc-icon-carne">
+            <path d="M4 12a8 8 0 0 1 16 0z" fill="#B8791E" stroke="#8C5C15" stroke-width="1.4" stroke-linejoin="round"/>
+            <path d="M4 12h16" stroke="#8C5C15" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+          <div>
+            <div class="cc-overview-num" id="cc-ov-carne">0</div>
+            <div class="cc-overview-label">panz. carne</div>
+          </div>
+        </div>
+        <div class="cc-overview-total" id="cc-overview-total">Totale: <b>0</b> piatti crudo, <b>0</b> panzerotti &mdash; <b>0,00 &euro;</b> in tutto</div>
+      </div>
+
+      <hr class="cc-dashed" />
+
+      <div class="cc-section-head">
+        <span class="cc-section-title sea">Crudo di mare misto</span>
+        <span class="cc-price-tag sea">25 &euro; / piatto</span>
+      </div>
+      <p class="cc-avail-note">La composizione di ogni piatto &egrave; personalizzabile, ma resta legata al pescato disponibile in pescheria il sabato: gli ingredienti selezionati sono una preferenza, non una garanzia al 100%. In caso di indisponibilit&agrave; verranno proposte alternative equivalenti.</p>
+      <p class="cc-section-note">Ogni piatto ha la propria composizione: aggiungi un piatto per volta e scegli cosa deve contenere (cerchio pieno con segno di spunta = incluso).</p>
+
+      <div id="cc-piatti-list"></div>
+      <p class="cc-piatti-empty" id="cc-piatti-empty">Nessun piatto crudo aggiunto.</p>
+      <button type="button" class="cc-add-piatto" id="cc-add-piatto">+ Aggiungi piatto crudo</button>
+
+      <hr class="cc-dashed" />
+
+      <div class="cc-section-head">
+        <span class="cc-section-title forno">Panzerotti</span>
+      </div>
+      <p class="cc-section-note">Indica quanti per variante.</p>
+      <div class="cc-qty-row">
+        <div>
+          <div class="cc-qty-name">Classico</div>
+          <div class="cc-qty-sub">2,50 &euro; / pezzo</div>
+        </div>
+        <div class="cc-stepper">
+          <button type="button" data-target="cc-qty-pclassico" data-delta="-1" aria-label="Togli un panzerotto classico">&minus;</button>
+          <span class="cc-qty-val" id="cc-qty-pclassico">0</span>
+          <button type="button" data-target="cc-qty-pclassico" data-delta="1" aria-label="Aggiungi un panzerotto classico">+</button>
+        </div>
+      </div>
+      <div class="cc-qty-row">
+        <div>
+          <div class="cc-qty-name">Carne</div>
+          <div class="cc-qty-sub">3,00 &euro; / pezzo</div>
+        </div>
+        <div class="cc-stepper">
+          <button type="button" data-target="cc-qty-pcarne" data-delta="-1" aria-label="Togli un panzerotto carne">&minus;</button>
+          <span class="cc-qty-val" id="cc-qty-pcarne">0</span>
+          <button type="button" data-target="cc-qty-pcarne" data-delta="1" aria-label="Aggiungi un panzerotto carne">+</button>
+        </div>
+      </div>
+
+      <p class="cc-required-note">Campi obbligatori: famiglia e almeno un panzerotto (classico o carne). I frutti di mare sono facoltativi.</p>
+      <button class="cc-submit" id="cc-submit" disabled>Invia comanda</button>
+      <p class="cc-status" id="cc-status"></p>
+
+      <button class="cc-toggle" id="cc-toggle">Mostra riepilogo di tutte le famiglie</button>
+
+      <div class="cc-recap" id="cc-recap">
+        <div id="cc-recap-body"><p class="cc-empty">Nessun ordine ancora registrato.</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const PREZZO_CRUDO = 25;
+  const PREZZO_PANZEROTTO_CLASSICO = 2.5;
+  const PREZZO_PANZEROTTO_CARNE = 3;
+  const INGREDIENTI = [
+    { key: 'violette', label: 'Violette' },
+    { key: 'tagliatelle', label: 'Tagliatelle' },
+    { key: 'allievo_polipetto', label: 'Allievo / Polipetto' },
+    { key: 'ostriche', label: 'Ostriche' },
+    { key: 'scampi', label: 'Scampi' }
+  ];
+
+  let piattoSeq = 0;
+  let piatti = [];
+
+  function slugify(s) {
+    return s.trim().toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  }
+
+  const statusEl = document.getElementById('cc-status');
+  const piattiList = document.getElementById('cc-piatti-list');
+  const piattiEmpty = document.getElementById('cc-piatti-empty');
+
+  function updateOverview() {
+    const crudoCount = piatti.length;
+    const classico = parseInt(document.getElementById('cc-qty-pclassico').textContent, 10) || 0;
+    const carne = parseInt(document.getElementById('cc-qty-pcarne').textContent, 10) || 0;
+
+    document.getElementById('cc-ov-crudo').textContent = crudoCount;
+    document.getElementById('cc-ov-classico').textContent = classico;
+    document.getElementById('cc-ov-carne').textContent = carne;
+
+    document.getElementById('cc-ov-crudo-item').classList.toggle('has-value', crudoCount > 0);
+    document.getElementById('cc-ov-classico-item').classList.toggle('forno-active', classico > 0);
+    document.getElementById('cc-ov-carne-item').classList.toggle('forno-active', carne > 0);
+
+    const euro = (crudoCount * PREZZO_CRUDO + classico * PREZZO_PANZEROTTO_CLASSICO + carne * PREZZO_PANZEROTTO_CARNE).toFixed(2).replace('.', ',');
+    document.getElementById('cc-overview-total').innerHTML =
+      'Totale: <b>' + crudoCount + '</b> piatti crudo, <b>' + (classico + carne) + '</b> panzerotti &mdash; <b>' + euro + ' &euro;</b> in tutto';
+  }
+
+  function updateSubmitState() {
+    const famiglia = document.getElementById('cc-famiglia').value;
+    const classico = parseInt(document.getElementById('cc-qty-pclassico').textContent, 10) || 0;
+    const carne = parseInt(document.getElementById('cc-qty-pcarne').textContent, 10) || 0;
+    const valido = !!famiglia && (classico + carne) >= 1;
+    document.getElementById('cc-submit').disabled = !valido;
+  }
+
+  function renderPiatti() {
+    piattiList.innerHTML = '';
+    piattiEmpty.style.display = piatti.length ? 'none' : 'block';
+    piatti.forEach(function(piatto, idx) {
+      const card = document.createElement('div');
+      card.className = 'cc-piatto-card';
+
+      const head = document.createElement('div');
+      head.className = 'cc-piatto-head';
+      const title = document.createElement('span');
+      title.className = 'cc-piatto-title';
+      title.textContent = 'Piatto ' + (idx + 1);
+      const removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.className = 'cc-piatto-remove';
+      removeBtn.textContent = 'Rimuovi';
+      removeBtn.addEventListener('click', function() {
+        piatti = piatti.filter(function(p) { return p.id !== piatto.id; });
+        renderPiatti();
+        updateOverview();
+        updateSubmitState();
+      });
+      head.appendChild(title);
+      head.appendChild(removeBtn);
+
+      const chips = document.createElement('div');
+      chips.className = 'cc-chips';
+      INGREDIENTI.forEach(function(ing) {
+        const wrap = document.createElement('div');
+        wrap.className = 'cc-chip';
+        const inputId = 'cc-piatto-' + piatto.id + '-' + ing.key;
+        const input = document.createElement('input');
+        input.type = 'checkbox';
+        input.id = inputId;
+        input.checked = !!piatto.items[ing.key];
+        input.addEventListener('change', function() {
+          piatto.items[ing.key] = input.checked;
+        });
+        const label = document.createElement('label');
+        label.setAttribute('for', inputId);
+        const mark = document.createElement('span');
+        mark.className = 'cc-chip-mark';
+        const text = document.createElement('span');
+        text.textContent = ing.label;
+        label.appendChild(mark);
+        label.appendChild(text);
+        wrap.appendChild(input);
+        wrap.appendChild(label);
+        chips.appendChild(wrap);
+      });
+
+      card.appendChild(head);
+      card.appendChild(chips);
+      piattiList.appendChild(card);
+    });
+  }
+
+  function nuovoPiatto(items) {
+    piattoSeq += 1;
+    const defaultItems = {};
+    INGREDIENTI.forEach(function(ing) { defaultItems[ing.key] = true; });
+    return { id: piattoSeq, items: items || defaultItems };
+  }
+
+  document.getElementById('cc-add-piatto').addEventListener('click', function() {
+    piatti.push(nuovoPiatto());
+    renderPiatti();
+    updateOverview();
+    updateSubmitState();
+  });
+
+  document.querySelectorAll('.cc-stepper button').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      const targetId = btn.getAttribute('data-target');
+      const delta = parseInt(btn.getAttribute('data-delta'), 10);
+      const el = document.getElementById(targetId);
+      let val = parseInt(el.textContent, 10) || 0;
+      val = Math.max(0, val + delta);
+      el.textContent = val;
+      updateOverview();
+      updateSubmitState();
+    });
+  });
+
+  async function loadExisting(famiglia) {
+    if (!famiglia) return;
+    try {
+      const res = await window.storage.get('ordine:' + slugify(famiglia), true);
+      if (!res) {
+        piatti = [];
+        renderPiatti();
+        document.getElementById('cc-qty-pclassico').textContent = 0;
+        document.getElementById('cc-qty-pcarne').textContent = 0;
+        updateOverview();
+        updateSubmitState();
+        return;
+      }
+      const data = JSON.parse(res.value);
+      piatti = (data.piatti || []).map(function(p) { return nuovoPiatto(p.items); });
+      renderPiatti();
+      document.getElementById('cc-qty-pclassico').textContent = data.panzerottiClassico || 0;
+      document.getElementById('cc-qty-pcarne').textContent = data.panzerottiCarne || 0;
+      updateOverview();
+      updateSubmitState();
+      statusEl.style.color = 'var(--sea-dark)';
+      statusEl.textContent = 'Ordine esistente caricato: puoi modificarlo.';
+    } catch (e) {
+      piatti = [];
+      renderPiatti();
+      updateOverview();
+      updateSubmitState();
+    }
+  }
+
+  document.getElementById('cc-famiglia').addEventListener('change', function(e) {
+    loadExisting(e.target.value);
+    updateSubmitState();
+  });
+
+  document.getElementById('cc-submit').addEventListener('click', async function() {
+    const famigliaSelect = document.getElementById('cc-famiglia');
+    const famiglia = famigliaSelect.value;
+    const classicoCheck = parseInt(document.getElementById('cc-qty-pclassico').textContent, 10) || 0;
+    const carneCheck = parseInt(document.getElementById('cc-qty-pcarne').textContent, 10) || 0;
+    if (!famiglia) {
+      statusEl.style.color = 'var(--red-stamp)';
+      statusEl.textContent = 'Seleziona la famiglia prima di inviare.';
+      famigliaSelect.focus();
+      return;
+    }
+    if (classicoCheck + carneCheck < 1) {
+      statusEl.style.color = 'var(--red-stamp)';
+      statusEl.textContent = 'Indica almeno un panzerotto (classico o carne) prima di inviare.';
+      return;
+    }
+    const order = {
+      famiglia: famiglia,
+      piatti: piatti.map(function(p) { return { items: p.items }; }),
+      panzerottiClassico: classicoCheck,
+      panzerottiCarne: carneCheck,
+      aggiornatoIl: new Date().toISOString()
+    };
+    try {
+      const result = await window.storage.set('ordine:' + slugify(famiglia), JSON.stringify(order), true);
+      if (result) {
+        statusEl.style.color = 'var(--sea-dark)';
+        statusEl.textContent = 'Comanda registrata per ' + famiglia + '.';
+        if (document.getElementById('cc-recap').classList.contains('open')) {
+          renderRecap();
+        }
+      } else {
+        throw new Error('salvataggio non riuscito');
+      }
+    } catch (e) {
+      statusEl.style.color = 'var(--red-stamp)';
+      statusEl.textContent = 'Non sono riuscito a salvare. Riprova.';
+    }
+  });
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, function(c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function describeItemsFull(items) {
+    const safeItems = items || {};
+    return INGREDIENTI.map(function(ing) {
+      const label = escapeHtml(ing.label);
+      return safeItems[ing.key]
+        ? '<span>' + label + '</span>'
+        : '<span class="cc-recap-item-off">' + label + '</span>';
+    }).join(', ');
+  }
+
+  async function renderRecap() {
+    const body = document.getElementById('cc-recap-body');
+    body.innerHTML = '<p class="cc-empty">Carico il riepilogo...</p>';
+    try {
+      const list = await window.storage.list('ordine:', true);
+      const keys = (list && list.keys) ? list.keys : [];
+      if (keys.length === 0) {
+        body.innerHTML = '<p class="cc-empty">Nessun ordine ancora registrato.</p>';
+        return;
+      }
+      const orders = [];
+      for (const k of keys) {
+        try {
+          const r = await window.storage.get(k, true);
+          if (r) orders.push(JSON.parse(r.value));
+        } catch (e) { }
+      }
+      orders.sort(function(a, b) { return a.famiglia.localeCompare(b.famiglia); });
+
+      let totCrudo = 0, totClassico = 0, totCarne = 0, totEuro = 0;
+      let rows = '';
+      orders.forEach(function(o) {
+        const nPiatti = (o.piatti || []).length;
+        const classico = o.panzerottiClassico || 0;
+        const carne = o.panzerottiCarne || 0;
+        totCrudo += nPiatti;
+        totClassico += classico;
+        totCarne += carne;
+        const subtotale = nPiatti * PREZZO_CRUDO + classico * PREZZO_PANZEROTTO_CLASSICO + carne * PREZZO_PANZEROTTO_CARNE;
+        totEuro += subtotale;
+        const piattiHtml = (o.piatti || []).map(function(p, i) {
+          return '<div class="cc-piatto-list-item">' + (i + 1) + '. ' + describeItemsFull(p.items) + '</div>';
+        }).join('');
+        rows += '<tr>' +
+          '<td>' + escapeHtml(o.famiglia) + '<br><span style="color:var(--ink-soft);font-size:11px">' + (piattiHtml || 'nessun piatto') + '</span></td>' +
+          '<td class="num">' + nPiatti + '</td>' +
+          '<td class="num">' + classico + '</td>' +
+          '<td class="num">' + carne + '</td>' +
+          '<td class="num">' + subtotale.toFixed(2) + '</td>' +
+          '</tr>';
+      });
+
+      let html = '<table><thead><tr>' +
+        '<th>Famiglia</th><th class="num">Crudo</th><th class="num">Panz. class.</th><th class="num">Panz. carne</th><th class="num">Totale &euro;</th>' +
+        '</tr></thead><tbody>' + rows + '</tbody>' +
+        '<tfoot><tr><td>Totale (' + orders.length + ' famiglie)</td>' +
+        '<td class="num">' + totCrudo + '</td>' +
+        '<td class="num">' + totClassico + '</td>' +
+        '<td class="num">' + totCarne + '</td>' +
+        '<td class="num">' + totEuro.toFixed(2) + '</td>' +
+        '</tr></tfoot></table>' +
+        '<p class="cc-recap-note">Prezzi: crudo 25 &euro;/piatto, panzerotto classico 2,50 &euro;, panzerotto carne 3 &euro;.</p>';
+
+      body.innerHTML = html;
+    } catch (e) {
+      body.innerHTML = '<p class="cc-empty">Non sono riuscito a caricare il riepilogo.</p>';
+    }
+  }
+
+  document.getElementById('cc-toggle').addEventListener('click', function() {
+    const recap = document.getElementById('cc-recap');
+    const isOpen = recap.classList.toggle('open');
+    this.textContent = isOpen ? 'Nascondi riepilogo' : 'Mostra riepilogo di tutte le famiglie';
+    if (isOpen) renderRecap();
+  });
+
+  renderPiatti();
+  updateOverview();
+  updateSubmitState();
+})();
+</script>
