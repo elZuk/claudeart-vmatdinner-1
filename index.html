@@ -506,6 +506,11 @@
         .cc-piatto-list-item {
             margin: 0 0 4px;
         }
+        /* Stile per il caricamento */
+        .cc-loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
     </style>
 </head>
 
@@ -517,13 +522,13 @@
                 <div class="cc-hero-eyebrow">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                         <path d="M12 2 4 8l3 10h10l3-10z" stroke="#D3A73B" stroke-width="1.5" stroke-linejoin="round" />
-                        <path d="M12 2v6M4 8l5 4M20 8l-5 4M7 18l5-4 5 4" stroke="#D3A73B" stroke-width="1.2" stroke-linejoin="round" />
+                        <path d="M12 2v6M4 8l5 4M20 8l-5 4M7 18l5-4 5 4" stroke="#D3A73B" stroke-width="1.2" stroke-linecap="round" />
                     </svg>
                     Coppa del sabato in pescheria
                 </div>
                 <h1 class="cc-hero-title">Finale mondiale</h1>
                 <div class="cc-hero-sub">Villa Matteo</div>
-                <div class="cc-hero-meta">Crudo di mare &bull; panzerotti fritti &bull; trappole &bull; tempi supplementari a tavola</div>
+                <div class="cc-hero-meta">Crudo di mare &bull; panzerotti fritti &bull; tempi supplementari a tavola</div>
             </div>
 
             <div class="cc-ticket">
@@ -534,6 +539,7 @@
                     <option value="">Seleziona la famiglia...</option>
                     <option value="Cucumazzo">Cucumazzo</option>
                     <option value="Spadaro">Spadaro</option>
+                    <option value="Addante">Addante</option>
                     <option value="Amenduni">Amenduni</option>
                     <option value="Didone">Didone</option>
                     <option value="Damiani">Damiani</option>
@@ -655,6 +661,7 @@
 
             let piattoSeq = 0;
             let piatti = [];
+            let isSaving = false; // Per evitare invii multipli
 
             // ------------------------------------------------------------
             // 3. ELEMENTI DOM
@@ -665,6 +672,8 @@
             const famigliaSelect = document.getElementById('cc-famiglia');
             const submitBtn = document.getElementById('cc-submit');
             const recapBody = document.getElementById('cc-recap-body');
+            const recapContainer = document.getElementById('cc-recap');
+            const toggleBtn = document.getElementById('cc-toggle');
 
             // ------------------------------------------------------------
             // 4. FUNZIONI DI UTILITY
@@ -772,7 +781,7 @@
                 const famiglia = famigliaSelect.value;
                 const classico = parseInt(document.getElementById('cc-qty-pclassico').textContent, 10) || 0;
                 const carne = parseInt(document.getElementById('cc-qty-pcarne').textContent, 10) || 0;
-                const valido = !!famiglia && (classico + carne) >= 1;
+                const valido = !!famiglia && (classico + carne) >= 1 && !isSaving;
                 submitBtn.disabled = !valido;
             }
 
@@ -792,6 +801,7 @@
                     // Legge tutti i dati dal foglio
                     const response = await axios.get(SHEET_BEST_URL);
                     const orders = response.data;
+                    
                     // Cerca l'ordine per la famiglia selezionata
                     const order = orders.find(o => o.famiglia === famiglia);
 
@@ -841,9 +851,12 @@
             }
 
             // ------------------------------------------------------------
-            // 7. INVIO ORDINE A SHEET.BEST
+            // 7. INVIO ORDINE A SHEET.BEST (versione corretta per piano free)
             // ------------------------------------------------------------
             async function inviaOrdine() {
+                // Evita invii multipli
+                if (isSaving) return;
+                
                 const famiglia = famigliaSelect.value;
                 const classicoCheck = parseInt(document.getElementById('cc-qty-pclassico').textContent, 10) || 0;
                 const carneCheck = parseInt(document.getElementById('cc-qty-pcarne').textContent, 10) || 0;
@@ -872,37 +885,42 @@
                     aggiornatoIl: new Date().toISOString()
                 };
 
-                // Disabilita il bottone per evitare doppio invio
+                // Disabilita il bottone
+                isSaving = true;
                 submitBtn.disabled = true;
                 statusEl.textContent = 'Salvataggio in corso...';
                 statusEl.style.color = 'var(--ink-soft)';
 
                 try {
-                    // 1. Leggi tutti gli ordini per trovare se esiste già un ordine per questa famiglia
-                    const response = await axios.get(SHEET_BEST_URL);
-                    const orders = response.data;
-                    const existingOrder = orders.find(o => o.famiglia === famiglia);
+                    // 🔥 CORREZIONE PER PIANO FREE: DELETE con filtro via query string
+                    // Sheet.best piano free usa un endpoint con filtro per eliminare
+                    await axios.delete(SHEET_BEST_URL, {
+                        params: { famiglia: famiglia }  // Filtra per il campo "famiglia"
+                    });
 
-                    // 2. Se esiste, cancella l'ordine vecchio (Sheet.best usa l'id automatico)
-                    if (existingOrder && existingOrder.id) {
-                        await axios.delete(SHEET_BEST_URL + '/' + existingOrder.id);
-                    }
-
-                    // 3. Inserisci il nuovo ordine (POST crea una nuova riga)
+                    // Inserisci il nuovo ordine (POST crea una nuova riga)
                     await axios.post(SHEET_BEST_URL, order);
 
                     statusEl.style.color = 'var(--sea-dark)';
-                    statusEl.textContent = 'Comanda registrata per ' + famiglia + '.';
+                    statusEl.textContent = '✅ Comanda registrata per ' + famiglia + '.';
 
                     // Se il riepilogo è aperto, lo aggiorna
-                    if (document.getElementById('cc-recap').classList.contains('open')) {
+                    if (recapContainer.classList.contains('open')) {
                         renderRecap();
                     }
                 } catch (e) {
                     console.error('Errore nel salvataggio:', e);
+                    // Mostra un errore più dettagliato se disponibile
+                    let msg = '❌ Non sono riuscito a salvare. Riprova.';
+                    if (e.response && e.response.data) {
+                        msg += ' Dettaglio: ' + JSON.stringify(e.response.data);
+                    } else if (e.request) {
+                        msg += ' Nessuna risposta dal server. Verifica la connessione.';
+                    }
                     statusEl.style.color = 'var(--red-stamp)';
-                    statusEl.textContent = 'Non sono riuscito a salvare. Riprova.';
+                    statusEl.textContent = msg;
                 } finally {
+                    isSaving = false;
                     updateSubmitState(); // Riabilita il bottone se le condizioni sono valide
                 }
             }
@@ -933,7 +951,7 @@
 
                     // Ordina per famiglia
                     orders.sort(function(a, b) {
-                        return a.famiglia.localeCompare(b.famiglia);
+                        return (a.famiglia || '').localeCompare(b.famiglia || '');
                     });
 
                     let totCrudo = 0,
@@ -951,8 +969,8 @@
                         }
 
                         const nPiatti = piattiData.length;
-                        const classico = o.panzerottiClassico || 0;
-                        const carne = o.panzerottiCarne || 0;
+                        const classico = parseInt(o.panzerottiClassico) || 0;
+                        const carne = parseInt(o.panzerottiCarne) || 0;
 
                         totCrudo += nPiatti;
                         totClassico += classico;
@@ -976,7 +994,7 @@
                         }
 
                         rows += '<tr>' +
-                            '<td>' + escapeHtml(o.famiglia) +
+                            '<td>' + escapeHtml(o.famiglia || '') +
                             '<br><span style="color:var(--ink-soft);font-size:11px">' + piattiHtml + '</span></td>' +
                             '<td class="num">' + nPiatti + '</td>' +
                             '<td class="num">' + classico + '</td>' +
@@ -999,7 +1017,7 @@
                     recapBody.innerHTML = html;
                 } catch (e) {
                     console.error('Errore nel caricamento riepilogo:', e);
-                    recapBody.innerHTML = '<p class="cc-empty">Non sono riuscito a caricare il riepilogo.</p>';
+                    recapBody.innerHTML = '<p class="cc-empty">❌ Non sono riuscito a caricare il riepilogo.</p>';
                 }
             }
 
@@ -1039,9 +1057,8 @@
             submitBtn.addEventListener('click', inviaOrdine);
 
             // Toggle riepilogo
-            document.getElementById('cc-toggle').addEventListener('click', function() {
-                const recap = document.getElementById('cc-recap');
-                const isOpen = recap.classList.toggle('open');
+            toggleBtn.addEventListener('click', function() {
+                const isOpen = recapContainer.classList.toggle('open');
                 this.textContent = isOpen ? 'Nascondi riepilogo' : 'Mostra riepilogo di tutte le famiglie';
                 if (isOpen) renderRecap();
             });
@@ -1059,6 +1076,7 @@
             }
 
             console.log('✅ App pronta! Sheet.best URL:', SHEET_BEST_URL);
+            console.log('ℹ️ Piano gratuito: DELETE usa filtro via query params');
         })();
     </script>
 </body>
