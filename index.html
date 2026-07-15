@@ -658,7 +658,6 @@
             let piatti = [];
             let isSaving = false;
             let cachedOrders = null;
-            let currentFamiglia = ''; // Traccia la famiglia corrente
 
             // ------------------------------------------------------------
             // 3. ELEMENTI DOM
@@ -805,18 +804,15 @@
             }
 
             // ------------------------------------------------------------
-            // 7. CARICAMENTO ORDINE DA SHEET.BEST (CORRETTO)
+            // 7. CARICAMENTO ORDINE DA SHEET.BEST
             // ------------------------------------------------------------
             async function loadExisting(famiglia) {
                 // RESET COMPLETO del form quando cambio famiglia
                 resetForm();
                 
                 if (!famiglia) {
-                    currentFamiglia = '';
                     return;
                 }
-
-                currentFamiglia = famiglia;
 
                 try {
                     statusEl.textContent = 'Caricamento ordine...';
@@ -877,7 +873,7 @@
             }
 
             // ------------------------------------------------------------
-            // 8. INVIO ORDINE A SHEET.BEST (CON PUT)
+            // 8. INVIO ORDINE A SHEET.BEST - SOVRASCRITTURA GARANTITA
             // ------------------------------------------------------------
             async function inviaOrdine() {
                 if (isSaving) return;
@@ -898,6 +894,7 @@
                     return;
                 }
 
+                // Costruisci l'ordine
                 const order = {
                     famiglia: famiglia,
                     piatti: JSON.stringify(piatti.map(function(p) {
@@ -914,34 +911,39 @@
                 statusEl.style.color = 'var(--ink-soft)';
 
                 try {
-                    console.log('📡 Verifico se esiste già un ordine per', famiglia);
-                    
+                    // 🔥 PASSO 1: Leggi tutti gli ordini
                     const orders = await fetchAllOrders(true);
+                    
+                    // 🔥 PASSO 2: Cerca se esiste già un ordine per questa famiglia
                     const existingOrder = orders.find(o => o.famiglia === famiglia);
 
                     if (existingOrder && existingOrder.id) {
-                        console.log('🔄 Ordine esistente (ID:', existingOrder.id, '). Lo aggiorno con PUT.');
+                        // 🔥 PASSO 3: SE ESISTE → AGGIORNA con PUT (sovrascrive)
+                        console.log('🔄 Sovrascrivo ordine esistente (ID:', existingOrder.id, ') per', famiglia);
                         await axios.put(SHEET_BEST_URL + '/' + existingOrder.id, order);
-                        console.log('✅ Ordine aggiornato con successo');
+                        console.log('✅ Ordine sovrascritto con successo');
                     } else {
-                        console.log('📝 Nessun ordine esistente. Creo un nuovo ordine con POST.');
+                        // 🔥 PASSO 3: SE NON ESISTE → CREA con POST
+                        console.log('📝 Creo nuovo ordine per', famiglia);
                         await axios.post(SHEET_BEST_URL, order);
                         console.log('✅ Nuovo ordine creato con successo');
                     }
 
+                    // Invalida la cache per forzare il refresh
                     invalidateCache();
 
                     statusEl.style.color = 'var(--sea-dark)';
-                    statusEl.textContent = '✅ Comanda registrata per ' + famiglia + '.';
+                    statusEl.textContent = '✅ Comanda registrata per ' + famiglia + '. L\'ordine precedente è stato sovrascritto.';
 
+                    // Se il riepilogo è aperto, lo aggiorna
                     if (recapContainer.classList.contains('open')) {
                         await renderRecap(true);
                     }
                 } catch (e) {
-                    console.error('❌ ERRORE COMPLETO:', e);
+                    console.error('❌ ERRORE:', e);
                     let msg = '❌ Non sono riuscito a salvare. Riprova.';
                     if (e.response) {
-                        console.error('📄 Dati risposta:', e.response.data);
+                        console.error('📄 Dettaglio:', e.response.data);
                         msg += ' Dettaglio: ' + JSON.stringify(e.response.data);
                     } else if (e.request) {
                         msg += ' Nessuna risposta dal server.';
@@ -1054,9 +1056,7 @@
             // ------------------------------------------------------------
 
             famigliaSelect.addEventListener('change', function(e) {
-                const famiglia = e.target.value;
-                // Reset completo prima di caricare la nuova famiglia
-                loadExisting(famiglia);
+                loadExisting(e.target.value);
                 updateSubmitState();
             });
 
@@ -1099,7 +1099,8 @@
                 loadExisting(famigliaSelect.value);
             }
 
-            console.log('✅ App pronta! URL Sheet.best:', SHEET_BEST_URL);
+            console.log('✅ App pronta! Sovrascrittura garantita con PUT.');
+            console.log('📊 URL Sheet.best:', SHEET_BEST_URL);
         })();
     </script>
 </body>
