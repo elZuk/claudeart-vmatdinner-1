@@ -506,11 +506,6 @@
         .cc-piatto-list-item {
             margin: 0 0 4px;
         }
-        /* Stile per il caricamento */
-        .cc-loading {
-            opacity: 0.6;
-            pointer-events: none;
-        }
     </style>
 </head>
 
@@ -661,7 +656,8 @@
 
             let piattoSeq = 0;
             let piatti = [];
-            let isSaving = false; // Per evitare invii multipli
+            let isSaving = false;
+            let cachedOrders = null; // Cache per evitare chiamate multiple
 
             // ------------------------------------------------------------
             // 3. ELEMENTI DOM
@@ -786,7 +782,31 @@
             }
 
             // ------------------------------------------------------------
-            // 6. CARICAMENTO ORDINE DA SHEET.BEST
+            // 6. FUNZIONI PER SHEET.BEST (OTTIMIZZATE)
+            // ------------------------------------------------------------
+            
+            // Legge tutti gli ordini una volta sola e li mette in cache
+            async function fetchAllOrders(forceRefresh = false) {
+                if (cachedOrders && !forceRefresh) {
+                    return cachedOrders;
+                }
+                try {
+                    const response = await axios.get(SHEET_BEST_URL);
+                    cachedOrders = response.data;
+                    return cachedOrders;
+                } catch (e) {
+                    console.error('Errore nel fetch degli ordini:', e);
+                    throw e;
+                }
+            }
+
+            // Invalida la cache (da chiamare dopo un POST o DELETE)
+            function invalidateCache() {
+                cachedOrders = null;
+            }
+
+            // ------------------------------------------------------------
+            // 7. CARICAMENTO ORDINE DA SHEET.BEST
             // ------------------------------------------------------------
             async function loadExisting(famiglia) {
                 if (!famiglia) {
@@ -798,11 +818,7 @@
                     statusEl.textContent = 'Caricamento ordine...';
                     statusEl.style.color = 'var(--ink-soft)';
 
-                    // Legge tutti i dati dal foglio
-                    const response = await axios.get(SHEET_BEST_URL);
-                    const orders = response.data;
-                    
-                    // Cerca l'ordine per la famiglia selezionata
+                    const orders = await fetchAllOrders();
                     const order = orders.find(o => o.famiglia === famiglia);
 
                     if (!order) {
@@ -832,12 +848,12 @@
                     updateSubmitState();
 
                     statusEl.style.color = 'var(--sea-dark)';
-                    statusEl.textContent = 'Ordine esistente caricato. Puoi modificarlo.';
+                    statusEl.textContent = '✅ Ordine esistente caricato. Puoi modificarlo.';
                 } catch (e) {
                     console.error('Errore nel caricamento:', e);
                     resetForm();
                     statusEl.style.color = 'var(--red-stamp)';
-                    statusEl.textContent = 'Errore nel caricare l\'ordine. Riprova.';
+                    statusEl.textContent = '❌ Errore nel caricare l\'ordine. Riprova.';
                 }
             }
 
@@ -851,12 +867,11 @@
             }
 
             // ------------------------------------------------------------
-            // 7. INVIO ORDINE A SHEET.BEST (versione corretta per piano free)
+            // 8. INVIO ORDINE A SHEET.BEST (FUNZIONANTE)
             // ------------------------------------------------------------
             async function inviaOrdine() {
-                // Evita invii multipli
                 if (isSaving) return;
-                
+
                 const famiglia = famigliaSelect.value;
                 const classicoCheck = parseInt(document.getElementById('cc-qty-pclassico').textContent, 10) || 0;
                 const carneCheck = parseInt(document.getElementById('cc-qty-pcarne').textContent, 10) || 0;
@@ -864,13 +879,13 @@
                 // Validazione
                 if (!famiglia) {
                     statusEl.style.color = 'var(--red-stamp)';
-                    statusEl.textContent = 'Seleziona la famiglia prima di inviare.';
+                    statusEl.textContent = '⚠️ Seleziona la famiglia prima di inviare.';
                     famigliaSelect.focus();
                     return;
                 }
                 if (classicoCheck + carneCheck < 1) {
                     statusEl.style.color = 'var(--red-stamp)';
-                    statusEl.textContent = 'Indica almeno un panzerotto (classico o carne) prima di inviare.';
+                    statusEl.textContent = '⚠️ Indica almeno un panzerotto (classico o carne).';
                     return;
                 }
 
@@ -885,48 +900,54 @@
                     aggiornatoIl: new Date().toISOString()
                 };
 
-                // Disabilita il bottone
                 isSaving = true;
                 submitBtn.disabled = true;
-                statusEl.textContent = 'Salvataggio in corso...';
+                statusEl.textContent = '⏳ Salvataggio in corso...';
                 statusEl.style.color = 'var(--ink-soft)';
 
                 try {
-                    // 🔥 CORREZIONE PER PIANO FREE: DELETE con filtro via query string
-                    // Sheet.best piano free usa un endpoint con filtro per eliminare
-                    await axios.delete(SHEET_BEST_URL, {
-                        params: { famiglia: famiglia }  // Filtra per il campo "famiglia"
-                    });
+                    // 1. Leggi tutti gli ordini (usa la cache se disponibile)
+                    const orders = await fetchAllOrders();
+                    
+                    // 2. Cerca se esiste già un ordine per questa famiglia
+                    const existingOrder = orders.find(o => o.famiglia === famiglia);
 
-                    // Inserisci il nuovo ordine (POST crea una nuova riga)
+                    // 3. Se esiste, cancellalo usando il suo ID
+                    if (existingOrder && existingOrder.id) {
+                        await axios.delete(SHEET_BEST_URL + '/' + existingOrder.id);
+                    }
+
+                    // 4. Inserisci il nuovo ordine
                     await axios.post(SHEET_BEST_URL, order);
+
+                    // 5. Invalida la cache perché i dati sono cambiati
+                    invalidateCache();
 
                     statusEl.style.color = 'var(--sea-dark)';
                     statusEl.textContent = '✅ Comanda registrata per ' + famiglia + '.';
 
-                    // Se il riepilogo è aperto, lo aggiorna
+                    // Se il riepilogo è aperto, lo aggiorna (forzando il refresh)
                     if (recapContainer.classList.contains('open')) {
-                        renderRecap();
+                        await renderRecap(true);
                     }
                 } catch (e) {
                     console.error('Errore nel salvataggio:', e);
-                    // Mostra un errore più dettagliato se disponibile
                     let msg = '❌ Non sono riuscito a salvare. Riprova.';
                     if (e.response && e.response.data) {
                         msg += ' Dettaglio: ' + JSON.stringify(e.response.data);
                     } else if (e.request) {
-                        msg += ' Nessuna risposta dal server. Verifica la connessione.';
+                        msg += ' Nessuna risposta dal server.';
                     }
                     statusEl.style.color = 'var(--red-stamp)';
                     statusEl.textContent = msg;
                 } finally {
                     isSaving = false;
-                    updateSubmitState(); // Riabilita il bottone se le condizioni sono valide
+                    updateSubmitState();
                 }
             }
 
             // ------------------------------------------------------------
-            // 8. RIEPILOGO DEGLI ORDINI
+            // 9. RIEPILOGO DEGLI ORDINI
             // ------------------------------------------------------------
             function describeItemsFull(items) {
                 const safeItems = items || {};
@@ -938,11 +959,10 @@
                 }).join(', ');
             }
 
-            async function renderRecap() {
-                recapBody.innerHTML = '<p class="cc-empty">Carico il riepilogo...</p>';
+            async function renderRecap(forceRefresh = false) {
+                recapBody.innerHTML = '<p class="cc-empty">⏳ Carico il riepilogo...</p>';
                 try {
-                    const response = await axios.get(SHEET_BEST_URL);
-                    const orders = response.data;
+                    const orders = await fetchAllOrders(forceRefresh);
 
                     if (orders.length === 0) {
                         recapBody.innerHTML = '<p class="cc-empty">Nessun ordine ancora registrato.</p>';
@@ -981,7 +1001,6 @@
                             carne * PREZZO_PANZEROTTO_CARNE;
                         totEuro += subtotale;
 
-                        // Costruisce la descrizione dei piatti
                         let piattiHtml = '';
                         if (piattiData.length > 0) {
                             piattiHtml = piattiData.map(function(p, i) {
@@ -1022,7 +1041,7 @@
             }
 
             // ------------------------------------------------------------
-            // 9. EVENT LISTENERS
+            // 10. EVENT LISTENERS
             // ------------------------------------------------------------
 
             // Cambio famiglia → carica l'ordine esistente
@@ -1060,23 +1079,23 @@
             toggleBtn.addEventListener('click', function() {
                 const isOpen = recapContainer.classList.toggle('open');
                 this.textContent = isOpen ? 'Nascondi riepilogo' : 'Mostra riepilogo di tutte le famiglie';
-                if (isOpen) renderRecap();
+                if (isOpen) renderRecap(false);
             });
 
             // ------------------------------------------------------------
-            // 10. INIZIALIZZAZIONE
+            // 11. INIZIALIZZAZIONE
             // ------------------------------------------------------------
             renderPiatti();
             updateOverview();
             updateSubmitState();
 
-            // Se c'è una famiglia già selezionata, carica l'ordine
             if (famigliaSelect.value) {
                 loadExisting(famigliaSelect.value);
             }
 
-            console.log('✅ App pronta! Sheet.best URL:', SHEET_BEST_URL);
-            console.log('ℹ️ Piano gratuito: DELETE usa filtro via query params');
+            console.log('✅ App pronta! URL Sheet.best:', SHEET_BEST_URL);
+            console.log('📊 Piano gratuito: usa DELETE con ID');
+            console.log('💾 Cache attiva per ridurre chiamate API');
         })();
     </script>
 </body>
