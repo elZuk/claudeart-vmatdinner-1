@@ -864,93 +864,88 @@
             }
 
             // ------------------------------------------------------------
-            // 8. INVIO ORDINE A SHEET.BEST (CON LOG DETTAGLIATO)
-            // ------------------------------------------------------------
-            async function inviaOrdine() {
-                if (isSaving) return;
+// 8. INVIO ORDINE A SHEET.BEST (CON PUT PER AGGIORNAMENTO)
+// ------------------------------------------------------------
+async function inviaOrdine() {
+    if (isSaving) return;
 
-                const famiglia = famigliaSelect.value;
-                const classicoCheck = parseInt(document.getElementById('cc-qty-pclassico').textContent, 10) || 0;
-                const carneCheck = parseInt(document.getElementById('cc-qty-pcarne').textContent, 10) || 0;
+    const famiglia = famigliaSelect.value;
+    const classicoCheck = parseInt(document.getElementById('cc-qty-pclassico').textContent, 10) || 0;
+    const carneCheck = parseInt(document.getElementById('cc-qty-pcarne').textContent, 10) || 0;
 
-                if (!famiglia) {
-                    statusEl.style.color = 'var(--red-stamp)';
-                    statusEl.textContent = '⚠️ Seleziona la famiglia prima di inviare.';
-                    famigliaSelect.focus();
-                    return;
-                }
-                if (classicoCheck + carneCheck < 1) {
-                    statusEl.style.color = 'var(--red-stamp)';
-                    statusEl.textContent = '⚠️ Indica almeno un panzerotto.';
-                    return;
-                }
+    if (!famiglia) {
+        statusEl.style.color = 'var(--red-stamp)';
+        statusEl.textContent = '⚠️ Seleziona la famiglia prima di inviare.';
+        famigliaSelect.focus();
+        return;
+    }
+    if (classicoCheck + carneCheck < 1) {
+        statusEl.style.color = 'var(--red-stamp)';
+        statusEl.textContent = '⚠️ Indica almeno un panzerotto.';
+        return;
+    }
 
-                const order = {
-                    famiglia: famiglia,
-                    piatti: JSON.stringify(piatti.map(function(p) {
-                        return { items: p.items };
-                    })),
-                    panzerottiClassico: classicoCheck,
-                    panzerottiCarne: carneCheck,
-                    aggiornatoIl: new Date().toISOString()
-                };
+    const order = {
+        famiglia: famiglia,
+        piatti: JSON.stringify(piatti.map(function(p) {
+            return { items: p.items };
+        })),
+        panzerottiClassico: classicoCheck,
+        panzerottiCarne: carneCheck,
+        aggiornatoIl: new Date().toISOString()
+    };
 
-                isSaving = true;
-                submitBtn.disabled = true;
-                statusEl.textContent = '⏳ Salvataggio in corso...';
-                statusEl.style.color = 'var(--ink-soft)';
+    isSaving = true;
+    submitBtn.disabled = true;
+    statusEl.textContent = '⏳ Salvataggio in corso...';
+    statusEl.style.color = 'var(--ink-soft)';
 
-                try {
-                    console.log('📡 1. Leggo tutti gli ordini...');
-                    const orders = await fetchAllOrders(true);
-                    console.log('📋 Ordini trovati:', orders);
+    try {
+        console.log('📡 1. Verifico se esiste già un ordine per', famiglia);
+        
+        // Cerca se esiste già un ordine per questa famiglia
+        const response = await axios.get(SHEET_BEST_URL);
+        const orders = response.data;
+        const existingOrder = orders.find(o => o.famiglia === famiglia);
 
-                    const existingOrder = orders.find(o => o.famiglia === famiglia);
-                    console.log('🔍 Ordine esistente per', famiglia, ':', existingOrder);
+        if (existingOrder && existingOrder.id) {
+            // 🔥 USA PUT con l'ID esistente per aggiornare la riga
+            console.log('🔄 Ordine esistente trovato (ID:', existingOrder.id, '). Lo aggiorno con PUT.');
+            await axios.put(SHEET_BEST_URL + '/' + existingOrder.id, order);
+            console.log('✅ Ordine aggiornato con successo');
+        } else {
+            // Se non esiste, crea un nuovo ordine con POST
+            console.log('📝 Nessun ordine esistente. Creo un nuovo ordine con POST.');
+            await axios.post(SHEET_BEST_URL, order);
+            console.log('✅ Nuovo ordine creato con successo');
+        }
 
-                    if (existingOrder && existingOrder.id) {
-                        console.log('🗑️ Cancello l\'ordine con ID:', existingOrder.id);
-                        await axios.delete(SHEET_BEST_URL + '/' + existingOrder.id);
-                        console.log('✅ Ordine cancellato');
-                    } else {
-                        console.log('ℹ️ Nessun ordine esistente da cancellare');
-                    }
+        invalidateCache();
 
-                    console.log('📝 Creo il nuovo ordine...');
-                    const postResponse = await axios.post(SHEET_BEST_URL, order);
-                    console.log('✅ Nuovo ordine creato:', postResponse.data);
+        statusEl.style.color = 'var(--sea-dark)';
+        statusEl.textContent = '✅ Comanda registrata per ' + famiglia + '.';
 
-                    invalidateCache();
-
-                    statusEl.style.color = 'var(--sea-dark)';
-                    statusEl.textContent = '✅ Comanda registrata per ' + famiglia + '.';
-
-                    if (recapContainer.classList.contains('open')) {
-                        await renderRecap(true);
-                    }
-                } catch (e) {
-                    console.error('❌ ERRORE COMPLETO:', e);
-                    let msg = '❌ Non sono riuscito a salvare. Riprova.';
-                    if (e.response) {
-                        console.error('📄 Dati risposta:', e.response.data);
-                        console.error('📄 Status:', e.response.status);
-                        console.error('📄 Headers:', e.response.headers);
-                        msg += ' Dettaglio: ' + JSON.stringify(e.response.data);
-                    } else if (e.request) {
-                        console.error('📄 Nessuna risposta:', e.request);
-                        msg += ' Nessuna risposta dal server.';
-                    } else {
-                        console.error('📄 Errore:', e.message);
-                        msg += ' ' + e.message;
-                    }
-                    statusEl.style.color = 'var(--red-stamp)';
-                    statusEl.textContent = msg;
-                } finally {
-                    isSaving = false;
-                    updateSubmitState();
-                }
-            }
-
+        if (recapContainer.classList.contains('open')) {
+            await renderRecap(true);
+        }
+    } catch (e) {
+        console.error('❌ ERRORE COMPLETO:', e);
+        let msg = '❌ Non sono riuscito a salvare. Riprova.';
+        if (e.response) {
+            console.error('📄 Dati risposta:', e.response.data);
+            msg += ' Dettaglio: ' + JSON.stringify(e.response.data);
+        } else if (e.request) {
+            msg += ' Nessuna risposta dal server.';
+        } else {
+            msg += ' ' + e.message;
+        }
+        statusEl.style.color = 'var(--red-stamp)';
+        statusEl.textContent = msg;
+    } finally {
+        isSaving = false;
+        updateSubmitState();
+    }
+}
             // ------------------------------------------------------------
             // 9. RIEPILOGO DEGLI ORDINI
             // ------------------------------------------------------------
