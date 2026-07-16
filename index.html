@@ -341,6 +341,72 @@
   font-style: italic;
   padding: 6px 0 12px;
 }
+.cc-pz-row {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+.cc-pz-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.cc-pz-name { font-size: 15px; font-weight: 600; }
+.cc-pz-price {
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  color: var(--forno-dark);
+}
+.cc-pz-variants {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+.cc-pz-variant {
+  flex: 1;
+  min-width: 150px;
+  background: var(--paper-dark);
+  border-radius: 4px;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.cc-pz-variant-label {
+  font-size: 11.5px;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.cc-pz-variant.senza-lattosio .cc-pz-variant-label { color: var(--forno-dark); font-weight: 700; }
+.cc-stepper-sm {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.cc-stepper-sm button {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1.5px solid var(--ink);
+  background: var(--white);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  line-height: 1;
+}
+.cc-stepper-sm .cc-qty-val-sm {
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+  min-width: 16px;
+  text-align: center;
+}
 .cc-qty-row {
   display: flex;
   align-items: center;
@@ -350,32 +416,6 @@
   border-radius: 4px;
   padding: 10px 12px;
   margin-bottom: 10px;
-}
-.cc-qty-name { font-size: 15px; font-weight: 500; }
-.cc-qty-sub { font-size: 12px; color: var(--ink-soft); }
-.cc-stepper {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.cc-stepper button {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  border: 1.5px solid var(--ink);
-  background: var(--paper);
-  color: var(--ink);
-  font-size: 16px;
-  font-weight: 700;
-  cursor: pointer;
-  line-height: 1;
-}
-.cc-stepper button:active { transform: scale(0.94); }
-.cc-stepper .cc-qty-val {
-  font-family: 'Space Mono', monospace;
-  font-size: 17px;
-  min-width: 22px;
-  text-align: center;
 }
 .cc-submit {
   width: 100%;
@@ -442,6 +482,72 @@
 .cc-empty { color: var(--ink-soft); font-style: italic; padding: 8px 0; }
 .cc-recap-note { font-family: 'Libre Franklin', sans-serif; font-size: 11.5px; color: var(--ink-soft); margin-top: 8px; }
 .cc-piatto-list-item { margin: 0 0 4px; }
+.cc-recap-lat { color: var(--forno-dark); font-weight: 700; }
+
+.cc-comp-section {
+  margin-top: 1.6rem;
+  font-family: 'Libre Franklin', sans-serif;
+}
+.cc-comp-title {
+  font-family: 'Permanent Marker', cursive;
+  color: var(--sea-dark);
+  font-size: 17px;
+  margin: 0 0 10px;
+}
+.cc-comp-family {
+  margin-bottom: 16px;
+}
+.cc-comp-family-name {
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink);
+  background: var(--paper-dark);
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 3px;
+  margin-bottom: 8px;
+}
+.cc-comp-piatti {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+.cc-pie-card {
+  width: 118px;
+  text-align: center;
+}
+.cc-pie {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  margin: 0 auto 6px;
+  border: 2px solid var(--white);
+  box-shadow: 0 0 0 1px var(--line);
+}
+.cc-pie-label {
+  font-size: 10.5px;
+  color: var(--ink-soft);
+  margin-bottom: 4px;
+}
+.cc-pie-legend {
+  text-align: left;
+  font-size: 10px;
+}
+.cc-pie-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 2px;
+  color: var(--ink-soft);
+}
+.cc-pie-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
 </style>
 
 <div class="cc-root">
@@ -452,13 +558,13 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2 4 8l3 10h10l3-10z" stroke="#D3A73B" stroke-width="1.5" stroke-linejoin="round"/><path d="M12 2v6M4 8l5 4M20 8l-5 4M7 18l5-4 5 4" stroke="#D3A73B" stroke-width="1.2" stroke-linejoin="round"/></svg>
         Coppa del sabato in pescheria
       </div>
-      <h1 class="cc-hero-title">Finale mondiale (Bugia)</h1>
+      <h1 class="cc-hero-title">Finale mondiale</h1>
       <div class="cc-hero-sub">Villa Matteo</div>
-      <div class="cc-hero-meta">Crudo di mare &bull; panzerotti fritti &bull; trappole &bull; forse musica se Didone porta le casse nuove che ha accattat</div>
+      <div class="cc-hero-meta">Crudo di mare &bull; panzerotti fritti &bull; trappole &bull; tempi supplementari a tavola</div>
     </div>
 
     <div class="cc-ticket">
-      <p class="cc-sub">Compila un modulo per famiglia. Puoi correggere e reinviare: l'ultimo invio sostituisce quello precedente.</p>
+      <p class="cc-sub">Compila un modulo per famiglia. Puoi correggere e reinviare: verr&agrave; considerato l'ultimo invio per famiglia.</p>
 
       <label class="cc-field-label" for="cc-famiglia">Famiglia</label>
       <select class="cc-select" id="cc-famiglia">
@@ -477,7 +583,7 @@
 
       <div class="cc-overview" id="cc-overview">
         <div class="cc-overview-item" id="cc-ov-crudo-item">
-          <svg class="cc-overview-icon" viewBox="0 0 24 24" fill="none" id="cc-icon-crudo">
+          <svg class="cc-overview-icon" viewBox="0 0 24 24" fill="none">
             <path d="M12 3C7 3 4 9 4 14c0 4 3.6 7 8 7s8-3 8-7c0-5-3-11-8-11z" stroke="#2C6E8E" stroke-width="1.6" stroke-linejoin="round"/>
             <path d="M12 3v18M8 8c1 1 1 3 0 5M16 8c-1 1-1 3 0 5" stroke="#2C6E8E" stroke-width="1.2" stroke-linecap="round"/>
           </svg>
@@ -486,24 +592,24 @@
             <div class="cc-overview-label">crudo</div>
           </div>
         </div>
-        <div class="cc-overview-item" id="cc-ov-classico-item">
-          <svg class="cc-overview-icon" viewBox="0 0 24 24" fill="none" id="cc-icon-classico">
-            <path d="M4 12a8 8 0 0 1 16 0z" stroke="#B8791E" stroke-width="1.6" stroke-linejoin="round"/>
-            <path d="M4 12h16" stroke="#B8791E" stroke-width="1.6" stroke-linecap="round"/>
-          </svg>
-          <div>
-            <div class="cc-overview-num" id="cc-ov-classico">0</div>
-            <div class="cc-overview-label">panz. classico</div>
-          </div>
-        </div>
-        <div class="cc-overview-item" id="cc-ov-carne-item">
-          <svg class="cc-overview-icon" viewBox="0 0 24 24" fill="none" id="cc-icon-carne">
+        <div class="cc-overview-item" id="cc-ov-pz-item">
+          <svg class="cc-overview-icon" viewBox="0 0 24 24" fill="none">
             <path d="M4 12a8 8 0 0 1 16 0z" fill="#B8791E" stroke="#8C5C15" stroke-width="1.4" stroke-linejoin="round"/>
             <path d="M4 12h16" stroke="#8C5C15" stroke-width="1.6" stroke-linecap="round"/>
           </svg>
           <div>
-            <div class="cc-overview-num" id="cc-ov-carne">0</div>
-            <div class="cc-overview-label">panz. carne</div>
+            <div class="cc-overview-num" id="cc-ov-pz">0</div>
+            <div class="cc-overview-label">panzerotti</div>
+          </div>
+        </div>
+        <div class="cc-overview-item" id="cc-ov-lat-item">
+          <svg class="cc-overview-icon" viewBox="0 0 24 24" fill="none">
+            <path d="M12 3c3 4 6 7.5 6 11a6 6 0 0 1-12 0c0-3.5 3-7 6-11z" stroke="#B8791E" stroke-width="1.6" stroke-linejoin="round"/>
+            <path d="M4 4l16 16" stroke="#B8791E" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+          <div>
+            <div class="cc-overview-num" id="cc-ov-lat">0</div>
+            <div class="cc-overview-label">senza lattosio</div>
           </div>
         </div>
         <div class="cc-overview-total" id="cc-overview-total">Totale: <b>0</b> piatti crudo, <b>0</b> panzerotti &mdash; <b>0,00 &euro;</b> in tutto</div>
@@ -527,31 +633,11 @@
       <div class="cc-section-head">
         <span class="cc-section-title forno">Panzerotti</span>
       </div>
-      <p class="cc-section-note">Indica quanti per variante.</p>
-      <div class="cc-qty-row">
-        <div>
-          <div class="cc-qty-name">Classico</div>
-          <div class="cc-qty-sub">2,50 &euro; / pezzo</div>
-        </div>
-        <div class="cc-stepper">
-          <button type="button" data-target="cc-qty-pclassico" data-delta="-1" aria-label="Togli un panzerotto classico">&minus;</button>
-          <span class="cc-qty-val" id="cc-qty-pclassico">0</span>
-          <button type="button" data-target="cc-qty-pclassico" data-delta="1" aria-label="Aggiungi un panzerotto classico">+</button>
-        </div>
-      </div>
-      <div class="cc-qty-row">
-        <div>
-          <div class="cc-qty-name">Carne</div>
-          <div class="cc-qty-sub">3,00 &euro; / pezzo</div>
-        </div>
-        <div class="cc-stepper">
-          <button type="button" data-target="cc-qty-pcarne" data-delta="-1" aria-label="Togli un panzerotto carne">&minus;</button>
-          <span class="cc-qty-val" id="cc-qty-pcarne">0</span>
-          <button type="button" data-target="cc-qty-pcarne" data-delta="1" aria-label="Aggiungi un panzerotto carne">+</button>
-        </div>
-      </div>
+      <p class="cc-section-note">Per ciascuna tipologia indica separatamente quanti "con lattosio" e quanti "senza lattosio" (es. 1 classico normale e 1 classico senza lattosio nella stessa comanda).</p>
 
-      <p class="cc-required-note">Campi obbligatori: famiglia e almeno un panzerotto (classico o carne). I frutti di mare sono facoltativi.</p>
+      <div id="cc-pz-list"></div>
+
+      <p class="cc-required-note">Campi obbligatori: famiglia e almeno un panzerotto (di qualunque tipologia o variante). I frutti di mare sono facoltativi.</p>
       <button class="cc-submit" id="cc-submit" disabled>Invia comanda</button>
       <p class="cc-status" id="cc-status"></p>
 
@@ -566,30 +652,49 @@
 
 <script>
 (function() {
+  // --- Prezzi, in variabili parlanti ---
   const PREZZO_CRUDO = 25;
-  const PREZZO_PANZEROTTO_CLASSICO = 2.5;
-  const PREZZO_PANZEROTTO_CARNE = 3;
+  const PREZZO_CLASSICO_FRITTO = 2.5;
+  const PREZZO_CLASSICO_FORNO = 3;
+  const PREZZO_MORTADELLA_PROVOLONE_FRITTO = 3.5;
+  const PREZZO_SALAME_FRITTO = 3;
+  const PREZZO_COTTO_FRITTO = 2.5;
+  const PREZZO_WURSTEL_FRITTO = 2.5;
+
   const INGREDIENTI = [
-    { key: 'violette', label: 'Violette' },
-    { key: 'tagliatelle', label: 'Tagliatelle' },
-    { key: 'allievo_polipetto', label: 'Allievo / Polipetto' },
-    { key: 'ostriche', label: 'Ostriche' },
-    { key: 'scampi', label: 'Scampi' }
+    { key: 'violette', label: 'Violette', colore: '#2C6E8E' },
+    { key: 'tagliatelle', label: 'Tagliatelle', colore: '#6FA9C0' },
+    { key: 'allievo_polipetto', label: 'Allievo / Polipetto', colore: '#8C5C15' },
+    { key: 'ostriche', label: 'Ostriche', colore: '#D3A73B' },
+    { key: 'scampi', label: 'Scampi', colore: '#A83B2E' }
   ];
 
-  let piattoSeq = 0;
-  let piatti = [];
+  const TIPOLOGIE_PANZEROTTO = [
+    { key: 'classico_fritto', label: 'Classico (fritto)', prezzo: PREZZO_CLASSICO_FRITTO },
+    { key: 'classico_forno', label: 'Classico (forno)', prezzo: PREZZO_CLASSICO_FORNO },
+    { key: 'mortadella_provolone_fritto', label: 'Mortadella e provolone (fritto)', prezzo: PREZZO_MORTADELLA_PROVOLONE_FRITTO },
+    { key: 'salame_fritto', label: 'Salame (fritto)', prezzo: PREZZO_SALAME_FRITTO },
+    { key: 'cotto_fritto', label: 'Cotto (fritto)', prezzo: PREZZO_COTTO_FRITTO },
+    { key: 'wurstel_fritto', label: 'Wurstel (fritto)', prezzo: PREZZO_WURSTEL_FRITTO }
+  ];
 
   const SHEET_API = 'https://api.sheetbest.com/sheets/466ff40d-1ff9-43cb-a0ca-794cda4f9c66';
 
+  let piattoSeq = 0;
+  let piatti = [];
+  // per tipologia: { conLattosio: n, senzaLattosio: n }
+  let panzerotti = {};
+  TIPOLOGIE_PANZEROTTO.forEach(function(t) { panzerotti[t.key] = { conLattosio: 0, senzaLattosio: 0 }; });
+
   function rigaAOrdine(riga) {
     let piattiParsati = [];
+    let panzerottiParsati = [];
     try { piattiParsati = riga.piatti ? JSON.parse(riga.piatti) : []; } catch (e) { piattiParsati = []; }
+    try { panzerottiParsati = riga.panzerotti ? JSON.parse(riga.panzerotti) : []; } catch (e) { panzerottiParsati = []; }
     return {
       famiglia: riga.famiglia,
       piatti: piattiParsati,
-      panzerottiClassico: parseInt(riga.panzerottiClassico, 10) || 0,
-      panzerottiCarne: parseInt(riga.panzerottiCarne, 10) || 0,
+      panzerotti: panzerottiParsati,
       aggiornatoIl: riga.aggiornatoIl || ''
     };
   }
@@ -604,8 +709,7 @@
     const riga = {
       famiglia: order.famiglia,
       piatti: JSON.stringify(order.piatti),
-      panzerottiClassico: order.panzerottiClassico,
-      panzerottiCarne: order.panzerottiCarne,
+      panzerotti: JSON.stringify(order.panzerotti),
       aggiornatoIl: order.aggiornatoIl
     };
     await axios.post(SHEET_API, riga);
@@ -624,40 +728,140 @@
     return Object.keys(mappa).map(function(f) { return rigaAOrdine(mappa[f]); });
   }
 
-  function slugify(s) {
-    return s.trim().toLowerCase()
-      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-  }
-
   const statusEl = document.getElementById('cc-status');
   const piattiList = document.getElementById('cc-piatti-list');
   const piattiEmpty = document.getElementById('cc-piatti-empty');
+  const pzList = document.getElementById('cc-pz-list');
+
+  function totalePanzerotti() {
+    return TIPOLOGIE_PANZEROTTO.reduce(function(acc, t) {
+      return acc + (panzerotti[t.key].conLattosio || 0) + (panzerotti[t.key].senzaLattosio || 0);
+    }, 0);
+  }
+  function totaleSenzaLattosio() {
+    return TIPOLOGIE_PANZEROTTO.reduce(function(acc, t) { return acc + (panzerotti[t.key].senzaLattosio || 0); }, 0);
+  }
+  function totaleEuroPanzerotti() {
+    return TIPOLOGIE_PANZEROTTO.reduce(function(acc, t) {
+      const q = (panzerotti[t.key].conLattosio || 0) + (panzerotti[t.key].senzaLattosio || 0);
+      return acc + q * t.prezzo;
+    }, 0);
+  }
 
   function updateOverview() {
     const crudoCount = piatti.length;
-    const classico = parseInt(document.getElementById('cc-qty-pclassico').textContent, 10) || 0;
-    const carne = parseInt(document.getElementById('cc-qty-pcarne').textContent, 10) || 0;
+    const pzCount = totalePanzerotti();
+    const latCount = totaleSenzaLattosio();
 
     document.getElementById('cc-ov-crudo').textContent = crudoCount;
-    document.getElementById('cc-ov-classico').textContent = classico;
-    document.getElementById('cc-ov-carne').textContent = carne;
+    document.getElementById('cc-ov-pz').textContent = pzCount;
+    document.getElementById('cc-ov-lat').textContent = latCount;
 
     document.getElementById('cc-ov-crudo-item').classList.toggle('has-value', crudoCount > 0);
-    document.getElementById('cc-ov-classico-item').classList.toggle('forno-active', classico > 0);
-    document.getElementById('cc-ov-carne-item').classList.toggle('forno-active', carne > 0);
+    document.getElementById('cc-ov-pz-item').classList.toggle('forno-active', pzCount > 0);
+    document.getElementById('cc-ov-lat-item').classList.toggle('forno-active', latCount > 0);
 
-    const euro = (crudoCount * PREZZO_CRUDO + classico * PREZZO_PANZEROTTO_CLASSICO + carne * PREZZO_PANZEROTTO_CARNE).toFixed(2).replace('.', ',');
+    const euro = (crudoCount * PREZZO_CRUDO + totaleEuroPanzerotti()).toFixed(2).replace('.', ',');
     document.getElementById('cc-overview-total').innerHTML =
-      'Totale: <b>' + crudoCount + '</b> piatti crudo, <b>' + (classico + carne) + '</b> panzerotti &mdash; <b>' + euro + ' &euro;</b> in tutto';
+      'Totale: <b>' + crudoCount + '</b> piatti crudo, <b>' + pzCount + '</b> panzerotti &mdash; <b>' + euro + ' &euro;</b> in tutto';
   }
 
   function updateSubmitState() {
     const famiglia = document.getElementById('cc-famiglia').value;
-    const classico = parseInt(document.getElementById('cc-qty-pclassico').textContent, 10) || 0;
-    const carne = parseInt(document.getElementById('cc-qty-pcarne').textContent, 10) || 0;
-    const valido = !!famiglia && (classico + carne) >= 1;
+    const valido = !!famiglia && totalePanzerotti() >= 1;
     document.getElementById('cc-submit').disabled = !valido;
+  }
+
+  function creaStepperCompatto(valoreIniziale, onChange) {
+    const wrap = document.createElement('div');
+    wrap.className = 'cc-stepper-sm';
+    const minusBtn = document.createElement('button');
+    minusBtn.type = 'button';
+    minusBtn.textContent = '\u2212';
+    const val = document.createElement('span');
+    val.className = 'cc-qty-val-sm';
+    val.textContent = valoreIniziale;
+    const plusBtn = document.createElement('button');
+    plusBtn.type = 'button';
+    plusBtn.textContent = '+';
+    minusBtn.addEventListener('click', function() {
+      const nuovo = Math.max(0, parseInt(val.textContent, 10) - 1);
+      val.textContent = nuovo;
+      onChange(nuovo);
+    });
+    plusBtn.addEventListener('click', function() {
+      const nuovo = parseInt(val.textContent, 10) + 1;
+      val.textContent = nuovo;
+      onChange(nuovo);
+    });
+    wrap.appendChild(minusBtn);
+    wrap.appendChild(val);
+    wrap.appendChild(plusBtn);
+    wrap._valEl = val;
+    return wrap;
+  }
+
+  function renderPanzerotti() {
+    pzList.innerHTML = '';
+    TIPOLOGIE_PANZEROTTO.forEach(function(t) {
+      const row = document.createElement('div');
+      row.className = 'cc-pz-row';
+
+      const top = document.createElement('div');
+      top.className = 'cc-pz-top';
+      const left = document.createElement('div');
+      const name = document.createElement('div');
+      name.className = 'cc-pz-name';
+      name.textContent = t.label;
+      const price = document.createElement('div');
+      price.className = 'cc-pz-price';
+      price.textContent = t.prezzo.toFixed(2).replace('.', ',') + ' \u20ac / pezzo';
+      left.appendChild(name);
+      left.appendChild(price);
+      top.appendChild(left);
+
+      const variants = document.createElement('div');
+      variants.className = 'cc-pz-variants';
+
+      const conBox = document.createElement('div');
+      conBox.className = 'cc-pz-variant';
+      const conLabel = document.createElement('span');
+      conLabel.className = 'cc-pz-variant-label';
+      conLabel.textContent = 'Con lattosio';
+      const conStepper = creaStepperCompatto(panzerotti[t.key].conLattosio, function(v) {
+        panzerotti[t.key].conLattosio = v;
+        updateOverview();
+        updateSubmitState();
+      });
+      conBox.appendChild(conLabel);
+      conBox.appendChild(conStepper);
+
+      const senzaBox = document.createElement('div');
+      senzaBox.className = 'cc-pz-variant senza-lattosio';
+      const senzaLabel = document.createElement('span');
+      senzaLabel.className = 'cc-pz-variant-label';
+      senzaLabel.textContent = 'Senza lattosio';
+      const senzaStepper = creaStepperCompatto(panzerotti[t.key].senzaLattosio, function(v) {
+        panzerotti[t.key].senzaLattosio = v;
+        updateOverview();
+        updateSubmitState();
+      });
+      senzaBox.appendChild(senzaLabel);
+      senzaBox.appendChild(senzaStepper);
+
+      variants.appendChild(conBox);
+      variants.appendChild(senzaBox);
+
+      row.appendChild(top);
+      row.appendChild(variants);
+      pzList.appendChild(row);
+    });
+  }
+
+  function slugify(s) {
+    return s.trim().toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
   }
 
   function renderPiatti() {
@@ -731,18 +935,24 @@
     updateSubmitState();
   });
 
-  document.querySelectorAll('.cc-stepper button').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      const targetId = btn.getAttribute('data-target');
-      const delta = parseInt(btn.getAttribute('data-delta'), 10);
-      const el = document.getElementById(targetId);
-      let val = parseInt(el.textContent, 10) || 0;
-      val = Math.max(0, val + delta);
-      el.textContent = val;
-      updateOverview();
-      updateSubmitState();
+  function resetPanzerotti() {
+    TIPOLOGIE_PANZEROTTO.forEach(function(t) { panzerotti[t.key] = { conLattosio: 0, senzaLattosio: 0 }; });
+    renderPanzerotti();
+  }
+
+  function caricaPanzerottiDaOrdine(listaPanzerotti) {
+    TIPOLOGIE_PANZEROTTO.forEach(function(t) { panzerotti[t.key] = { conLattosio: 0, senzaLattosio: 0 }; });
+    (listaPanzerotti || []).forEach(function(p) {
+      if (panzerotti[p.tipo]) {
+        if (p.senzaLattosio) {
+          panzerotti[p.tipo].senzaLattosio = p.quantita || 0;
+        } else {
+          panzerotti[p.tipo].conLattosio = p.quantita || 0;
+        }
+      }
     });
-  });
+    renderPanzerotti();
+  }
 
   async function loadExisting(famiglia) {
     if (!famiglia) return;
@@ -751,8 +961,7 @@
       if (!riga) {
         piatti = [];
         renderPiatti();
-        document.getElementById('cc-qty-pclassico').textContent = 0;
-        document.getElementById('cc-qty-pcarne').textContent = 0;
+        resetPanzerotti();
         updateOverview();
         updateSubmitState();
         return;
@@ -760,8 +969,7 @@
       const data = rigaAOrdine(riga);
       piatti = (data.piatti || []).map(function(p) { return nuovoPiatto(p.items); });
       renderPiatti();
-      document.getElementById('cc-qty-pclassico').textContent = data.panzerottiClassico || 0;
-      document.getElementById('cc-qty-pcarne').textContent = data.panzerottiCarne || 0;
+      caricaPanzerottiDaOrdine(data.panzerotti);
       updateOverview();
       updateSubmitState();
       statusEl.style.color = 'var(--sea-dark)';
@@ -769,6 +977,7 @@
     } catch (e) {
       piatti = [];
       renderPiatti();
+      resetPanzerotti();
       updateOverview();
       updateSubmitState();
     }
@@ -782,24 +991,30 @@
   document.getElementById('cc-submit').addEventListener('click', async function() {
     const famigliaSelect = document.getElementById('cc-famiglia');
     const famiglia = famigliaSelect.value;
-    const classicoCheck = parseInt(document.getElementById('cc-qty-pclassico').textContent, 10) || 0;
-    const carneCheck = parseInt(document.getElementById('cc-qty-pcarne').textContent, 10) || 0;
     if (!famiglia) {
       statusEl.style.color = 'var(--red-stamp)';
       statusEl.textContent = 'Seleziona la famiglia prima di inviare.';
       famigliaSelect.focus();
       return;
     }
-    if (classicoCheck + carneCheck < 1) {
+    if (totalePanzerotti() < 1) {
       statusEl.style.color = 'var(--red-stamp)';
-      statusEl.textContent = 'Indica almeno un panzerotto (classico o carne) prima di inviare.';
+      statusEl.textContent = 'Indica almeno un panzerotto, di una qualunque tipologia o variante, prima di inviare.';
       return;
     }
+    const panzerottiOrdine = [];
+    TIPOLOGIE_PANZEROTTO.forEach(function(t) {
+      if (panzerotti[t.key].conLattosio > 0) {
+        panzerottiOrdine.push({ tipo: t.key, quantita: panzerotti[t.key].conLattosio, senzaLattosio: false });
+      }
+      if (panzerotti[t.key].senzaLattosio > 0) {
+        panzerottiOrdine.push({ tipo: t.key, quantita: panzerotti[t.key].senzaLattosio, senzaLattosio: true });
+      }
+    });
     const order = {
       famiglia: famiglia,
       piatti: piatti.map(function(p) { return { items: p.items }; }),
-      panzerottiClassico: classicoCheck,
-      panzerottiCarne: carneCheck,
+      panzerotti: panzerottiOrdine,
       aggiornatoIl: new Date().toISOString()
     };
     try {
@@ -831,6 +1046,76 @@
     }).join(', ');
   }
 
+  function etichettaTipologia(tipo) {
+    const t = TIPOLOGIE_PANZEROTTO.find(function(x) { return x.key === tipo; });
+    return t ? t.label : tipo;
+  }
+
+  function prezzoTipologia(tipo) {
+    const t = TIPOLOGIE_PANZEROTTO.find(function(x) { return x.key === tipo; });
+    return t ? t.prezzo : 0;
+  }
+
+  function describePanzerotti(listaPanzerotti) {
+    if (!listaPanzerotti || !listaPanzerotti.length) return 'nessuno';
+    return listaPanzerotti.map(function(p) {
+      const lat = p.senzaLattosio ? ' <span class="cc-recap-lat">(senza lattosio)</span>' : '';
+      return escapeHtml(p.quantita + '\u00d7 ' + etichettaTipologia(p.tipo)) + lat;
+    }).join(', ');
+  }
+
+  // --- Composizione a torta dei piatti di crudo, per famiglia ---
+  function calcolaComposizione(items) {
+    const selezionati = INGREDIENTI.filter(function(ing) { return items && items[ing.key]; });
+    if (!selezionati.length) return [];
+    const pct = 100 / selezionati.length;
+    return selezionati.map(function(ing) { return { label: ing.label, colore: ing.colore, pct: pct }; });
+  }
+
+  function costruisciConicGradient(composizione) {
+    if (!composizione.length) return 'var(--paper-dark)';
+    let cursore = 0;
+    const parti = composizione.map(function(c) {
+      const inizio = cursore;
+      const fine = cursore + c.pct;
+      cursore = fine;
+      return c.colore + ' ' + inizio.toFixed(2) + '% ' + fine.toFixed(2) + '%';
+    });
+    return 'conic-gradient(' + parti.join(', ') + ')';
+  }
+
+  function renderComposizionePiatti(orders) {
+    const famiglieConPiatti = orders.filter(function(o) { return (o.piatti || []).length > 0; });
+    if (!famiglieConPiatti.length) {
+      return '<p class="cc-empty">Nessun piatto di crudo ancora ordinato.</p>';
+    }
+    let html = '';
+    famiglieConPiatti.forEach(function(o) {
+      html += '<div class="cc-comp-family">';
+      html += '<div class="cc-comp-family-name">' + escapeHtml(o.famiglia) + '</div>';
+      html += '<div class="cc-comp-piatti">';
+      (o.piatti || []).forEach(function(p, i) {
+        const composizione = calcolaComposizione(p.items);
+        const gradient = costruisciConicGradient(composizione);
+        html += '<div class="cc-pie-card">';
+        html += '<div class="cc-pie-label">Piatto ' + (i + 1) + '</div>';
+        html += '<div class="cc-pie" style="background:' + gradient + ';"></div>';
+        html += '<div class="cc-pie-legend">';
+        if (composizione.length) {
+          composizione.forEach(function(c) {
+            html += '<div class="cc-pie-legend-item"><span class="cc-pie-dot" style="background:' + c.colore + ';"></span>' +
+              escapeHtml(c.label) + ' ' + Math.round(c.pct) + '%</div>';
+          });
+        } else {
+          html += '<div class="cc-pie-legend-item">nessun ingrediente</div>';
+        }
+        html += '</div></div>';
+      });
+      html += '</div></div>';
+    });
+    return html;
+  }
+
   async function renderRecap() {
     const body = document.getElementById('cc-recap-body');
     body.innerHTML = '<p class="cc-empty">Carico il riepilogo...</p>';
@@ -843,39 +1128,49 @@
       const orders = ultimiOrdiniPerFamiglia(righe);
       orders.sort(function(a, b) { return a.famiglia.localeCompare(b.famiglia); });
 
-      let totCrudo = 0, totClassico = 0, totCarne = 0, totEuro = 0;
+      let totCrudo = 0, totPz = 0, totLat = 0, totEuro = 0;
       let rows = '';
       orders.forEach(function(o) {
         const nPiatti = (o.piatti || []).length;
-        const classico = o.panzerottiClassico || 0;
-        const carne = o.panzerottiCarne || 0;
+        const listaPz = o.panzerotti || [];
+        const nPz = listaPz.reduce(function(acc, p) { return acc + (p.quantita || 0); }, 0);
+        const nLat = listaPz.reduce(function(acc, p) { return acc + (p.senzaLattosio ? (p.quantita || 0) : 0); }, 0);
+        const euroPz = listaPz.reduce(function(acc, p) { return acc + (p.quantita || 0) * prezzoTipologia(p.tipo); }, 0);
         totCrudo += nPiatti;
-        totClassico += classico;
-        totCarne += carne;
-        const subtotale = nPiatti * PREZZO_CRUDO + classico * PREZZO_PANZEROTTO_CLASSICO + carne * PREZZO_PANZEROTTO_CARNE;
+        totPz += nPz;
+        totLat += nLat;
+        const subtotale = nPiatti * PREZZO_CRUDO + euroPz;
         totEuro += subtotale;
         const piattiHtml = (o.piatti || []).map(function(p, i) {
           return '<div class="cc-piatto-list-item">' + (i + 1) + '. ' + describeItemsFull(p.items) + '</div>';
         }).join('');
         rows += '<tr>' +
-          '<td>' + escapeHtml(o.famiglia) + '<br><span style="color:var(--ink-soft);font-size:11px">' + (piattiHtml || 'nessun piatto') + '</span></td>' +
+          '<td>' + escapeHtml(o.famiglia) +
+          '<br><span style="color:var(--ink-soft);font-size:11px">' + (piattiHtml || 'nessun piatto crudo') + '</span>' +
+          '<br><span style="color:var(--ink-soft);font-size:11px">Panzerotti: ' + describePanzerotti(listaPz) + '</span>' +
+          '</td>' +
           '<td class="num">' + nPiatti + '</td>' +
-          '<td class="num">' + classico + '</td>' +
-          '<td class="num">' + carne + '</td>' +
+          '<td class="num">' + nPz + '</td>' +
+          '<td class="num">' + nLat + '</td>' +
           '<td class="num">' + subtotale.toFixed(2) + '</td>' +
           '</tr>';
       });
 
       let html = '<table><thead><tr>' +
-        '<th>Famiglia</th><th class="num">Crudo</th><th class="num">Panz. class.</th><th class="num">Panz. carne</th><th class="num">Totale &euro;</th>' +
+        '<th>Famiglia</th><th class="num">Crudo</th><th class="num">Panzerotti</th><th class="num">Senza latt.</th><th class="num">Totale &euro;</th>' +
         '</tr></thead><tbody>' + rows + '</tbody>' +
         '<tfoot><tr><td>Totale (' + orders.length + ' famiglie)</td>' +
         '<td class="num">' + totCrudo + '</td>' +
-        '<td class="num">' + totClassico + '</td>' +
-        '<td class="num">' + totCarne + '</td>' +
+        '<td class="num">' + totPz + '</td>' +
+        '<td class="num">' + totLat + '</td>' +
         '<td class="num">' + totEuro.toFixed(2) + '</td>' +
         '</tr></tfoot></table>' +
-        '<p class="cc-recap-note">Prezzi: crudo 25 &euro;/piatto, panzerotto classico 2,50 &euro;, panzerotto carne 3 &euro;.</p>';
+        '<p class="cc-recap-note">Prezzi: crudo 25 &euro;/piatto; panzerotto classico fritto 2,50 &euro;, classico al forno 3 &euro;, mortadella e provolone fritto 3,50 &euro;, salame fritto 3 &euro;, cotto fritto 2,50 &euro;, wurstel fritto 2,50 &euro; (stesso prezzo per la variante senza lattosio).</p>';
+
+      html += '<div class="cc-comp-section">' +
+        '<p class="cc-comp-title">Composizione dei piatti di crudo, per famiglia</p>' +
+        renderComposizionePiatti(orders) +
+        '</div>';
 
       body.innerHTML = html;
     } catch (e) {
@@ -891,6 +1186,7 @@
   });
 
   renderPiatti();
+  renderPanzerotti();
   updateOverview();
   updateSubmitState();
 })();
