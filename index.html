@@ -619,7 +619,6 @@
 
       <div class="cc-section-head">
         <span class="cc-section-title sea">Crudo di mare misto</span>
-        <span class="cc-price-tag sea">25 &euro; / piatto</span>
       </div>
       <p class="cc-avail-note">La composizione di ogni piatto &egrave; personalizzabile, ma resta legata al pescato disponibile in pescheria il sabato: gli ingredienti selezionati sono una preferenza, non una garanzia al 100%. In caso di indisponibilit&agrave; verranno proposte alternative equivalenti.</p>
       <p class="cc-section-note">Ogni piatto ha la propria composizione: aggiungi un piatto per volta e scegli cosa deve contenere (cerchio pieno con segno di spunta = incluso).</p>
@@ -653,7 +652,6 @@
 <script>
 (function() {
   // --- Prezzi, in variabili parlanti ---
-  const PREZZO_CRUDO = 25;
   const PREZZO_CLASSICO_FRITTO = 2.5;
   const PREZZO_CLASSICO_FORNO = 3;
   const PREZZO_MORTADELLA_PROVOLONE_FRITTO = 3.5;
@@ -761,9 +759,9 @@
     document.getElementById('cc-ov-pz-item').classList.toggle('forno-active', pzCount > 0);
     document.getElementById('cc-ov-lat-item').classList.toggle('forno-active', latCount > 0);
 
-    const euro = (crudoCount * PREZZO_CRUDO + totaleEuroPanzerotti()).toFixed(2).replace('.', ',');
+    const euro = totaleEuroPanzerotti().toFixed(2).replace('.', ',');
     document.getElementById('cc-overview-total').innerHTML =
-      'Totale: <b>' + crudoCount + '</b> piatti crudo, <b>' + pzCount + '</b> panzerotti &mdash; <b>' + euro + ' &euro;</b> in tutto';
+      'Totale: <b>' + crudoCount + '</b> piatti crudo, <b>' + pzCount + '</b> panzerotti &mdash; <b>' + euro + ' &euro;</b> in tutto (solo panzerotti, il crudo non ha prezzo)';
   }
 
   function updateSubmitState() {
@@ -1217,7 +1215,7 @@
         totCrudo += nPiatti;
         totPz += nPz;
         totLat += nLat;
-        const subtotale = nPiatti * PREZZO_CRUDO + euroPz;
+        const subtotale = euroPz;
         totEuro += subtotale;
         const piattiHtml = (o.piatti || []).map(function(p, i) {
           return '<div class="cc-piatto-list-item">' + (i + 1) + '. ' + describeItemsFull(p.items) + '</div>';
@@ -1235,7 +1233,7 @@
       });
 
       let html = '<table><thead><tr>' +
-        '<th>Famiglia</th><th class="num">Crudo</th><th class="num">Panzerotti</th><th class="num">Senza latt.</th><th class="num">Totale &euro;</th>' +
+        '<th>Famiglia</th><th class="num">Crudo</th><th class="num">Panzerotti</th><th class="num">Senza latt.</th><th class="num">Totale &euro; (panzerotti)</th>' +
         '</tr></thead><tbody>' + rows + '</tbody>' +
         '<tfoot><tr><td>Totale (' + orders.length + ' famiglie)</td>' +
         '<td class="num">' + totCrudo + '</td>' +
@@ -1243,7 +1241,7 @@
         '<td class="num">' + totLat + '</td>' +
         '<td class="num">' + totEuro.toFixed(2) + '</td>' +
         '</tr></tfoot></table>' +
-        '<p class="cc-recap-note">Prezzi: crudo 25 &euro;/piatto; panzerotto classico fritto 2,50 &euro;, classico al forno 3 &euro;, mortadella e provolone fritto 3,50 &euro;, salame fritto 3 &euro;, cotto fritto 2,50 &euro;, wurstel fritto 2,50 &euro; (stesso prezzo per la variante senza lattosio).</p>';
+        '<p class="cc-recap-note">Il piatto di crudo di mare non ha un prezzo (si gestisce solo la composizione degli ingredienti). Prezzi panzerotti: classico fritto 2,50 &euro;, classico al forno 3 &euro;, mortadella e provolone fritto 3,50 &euro;, salame fritto 3 &euro;, cotto fritto 2,50 &euro;, wurstel fritto 2,50 &euro; (stesso prezzo per la variante senza lattosio).</p>';
 
       html += '<div class="cc-comp-section">' +
         '<p class="cc-comp-title">Panzerotti ordinati, per tipologia</p>' +
