@@ -1064,6 +1064,84 @@
     }).join(', ');
   }
 
+  const QUANTITA_INGREDIENTE = {
+    violette: { valore: 2, unita: 'unit\u00e0' },
+    tagliatelle: { valore: 100, unita: 'g' },
+    allievo_polipetto: { valore: 1, unita: 'unit\u00e0' },
+    ostriche: { valore: 2, unita: 'unit\u00e0' },
+    scampi: { valore: 2, unita: 'unit\u00e0' }
+  };
+
+  function aggregaPanzerottiPerTipologia(orders) {
+    const mappa = {};
+    TIPOLOGIE_PANZEROTTO.forEach(function(t) { mappa[t.key] = { conLattosio: 0, senzaLattosio: 0 }; });
+    orders.forEach(function(o) {
+      (o.panzerotti || []).forEach(function(p) {
+        if (!mappa[p.tipo]) return;
+        if (p.senzaLattosio) mappa[p.tipo].senzaLattosio += (p.quantita || 0);
+        else mappa[p.tipo].conLattosio += (p.quantita || 0);
+      });
+    });
+    return mappa;
+  }
+
+  function renderRiepilogoPanzerotti(orders) {
+    const mappa = aggregaPanzerottiPerTipologia(orders);
+    let righe = '';
+    let totaleGenerale = 0;
+    let totalePezziGenerale = 0;
+    TIPOLOGIE_PANZEROTTO.forEach(function(t) {
+      const con = mappa[t.key].conLattosio;
+      const senza = mappa[t.key].senzaLattosio;
+      const pezzi = con + senza;
+      const totaleRiga = pezzi * t.prezzo;
+      totaleGenerale += totaleRiga;
+      totalePezziGenerale += pezzi;
+      righe += '<tr><td>' + escapeHtml(t.label) + '</td>' +
+        '<td class="num">' + con + '</td>' +
+        '<td class="num">' + senza + '</td>' +
+        '<td class="num">' + pezzi + '</td>' +
+        '<td class="num">' + t.prezzo.toFixed(2).replace('.', ',') + '</td>' +
+        '<td class="num">' + totaleRiga.toFixed(2).replace('.', ',') + '</td></tr>';
+    });
+    return '<table><thead><tr>' +
+      '<th>Tipologia</th><th class="num">Con latt.</th><th class="num">Senza latt.</th><th class="num">Totale pezzi</th><th class="num">Prezzo/pz</th><th class="num">Totale &euro;</th>' +
+      '</tr></thead><tbody>' + righe + '</tbody>' +
+      '<tfoot><tr><td>Totale generale</td><td class="num"></td><td class="num"></td>' +
+      '<td class="num">' + totalePezziGenerale + '</td><td class="num"></td>' +
+      '<td class="num">' + totaleGenerale.toFixed(2).replace('.', ',') + '</td></tr></tfoot></table>';
+  }
+
+  function aggregaIngredienti(orders) {
+    const conteggio = {};
+    INGREDIENTI.forEach(function(ing) { conteggio[ing.key] = 0; });
+    orders.forEach(function(o) {
+      (o.piatti || []).forEach(function(p) {
+        INGREDIENTI.forEach(function(ing) {
+          if (p.items && p.items[ing.key]) conteggio[ing.key] += 1;
+        });
+      });
+    });
+    return conteggio;
+  }
+
+  function renderRiepilogoIngredienti(orders) {
+    const conteggio = aggregaIngredienti(orders);
+    let righe = '';
+    INGREDIENTI.forEach(function(ing) {
+      const nPiatti = conteggio[ing.key];
+      const q = QUANTITA_INGREDIENTE[ing.key];
+      const totale = nPiatti * q.valore;
+      righe += '<tr><td>' + escapeHtml(ing.label) + '</td>' +
+        '<td class="num">' + nPiatti + '</td>' +
+        '<td class="num">' + q.valore + ' ' + q.unita + ' / piatto</td>' +
+        '<td class="num">' + totale + ' ' + q.unita + '</td></tr>';
+    });
+    return '<table><thead><tr>' +
+      '<th>Ingrediente</th><th class="num">Piatti</th><th class="num">Per piatto</th><th class="num">Totale</th>' +
+      '</tr></thead><tbody>' + righe + '</tbody></table>';
+  }
+
   // --- Composizione a torta dei piatti di crudo, per famiglia ---
   function calcolaComposizione(items) {
     const selezionati = INGREDIENTI.filter(function(ing) { return items && items[ing.key]; });
@@ -1166,6 +1244,16 @@
         '<td class="num">' + totEuro.toFixed(2) + '</td>' +
         '</tr></tfoot></table>' +
         '<p class="cc-recap-note">Prezzi: crudo 25 &euro;/piatto; panzerotto classico fritto 2,50 &euro;, classico al forno 3 &euro;, mortadella e provolone fritto 3,50 &euro;, salame fritto 3 &euro;, cotto fritto 2,50 &euro;, wurstel fritto 2,50 &euro; (stesso prezzo per la variante senza lattosio).</p>';
+
+      html += '<div class="cc-comp-section">' +
+        '<p class="cc-comp-title">Panzerotti ordinati, per tipologia</p>' +
+        renderRiepilogoPanzerotti(orders) +
+        '</div>';
+
+      html += '<div class="cc-comp-section">' +
+        '<p class="cc-comp-title">Ingredienti per i piatti di crudo, totale da preparare</p>' +
+        renderRiepilogoIngredienti(orders) +
+        '</div>';
 
       html += '<div class="cc-comp-section">' +
         '<p class="cc-comp-title">Composizione dei piatti di crudo, per famiglia</p>' +
